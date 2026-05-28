@@ -1,8 +1,8 @@
 var WidgetMetadata = {
-    id: "hanime1Tao", 
+    id: "hanime1Tao",
     title: "Hanime1",
     description: "高级全标签筛选、热榜、新番",
-    author: "廿二日", 
+    author: "廿二日",
     site: "https://hanime1.me",
     version: "1.3.0",
     requiredVersion: "0.0.2",
@@ -10,10 +10,11 @@ var WidgetMetadata = {
     search: {
         title: "高级搜索",
         functionName: "searchVideos",
+        type: "video", // [修复] 补齐缺失的 type 字段
         params: [
             { name: "keyword", title: "搜索关键词", type: "input", description: "输入关键词", value: "" },
             {
-                name: "sort_by", 
+                name: "sort_by",
                 title: "排序方式",
                 type: "enumeration",
                 description: "排序规则",
@@ -39,11 +40,12 @@ var WidgetMetadata = {
             title: "高级检索",
             description: "高级全标签筛选",
             requiresWebView: false,
-            functionName: "loadAdvancedGenre", 
-            cacheDuration: 600, 
+            type: "video", // [修复] 补齐缺失的 type 字段
+            functionName: "loadAdvancedGenre",
+            cacheDuration: 600,
             params: [
                 {
-                    name: "genre", 
+                    name: "genre",
                     title: "基础大分类",
                     type: "enumeration",
                     value: "all",
@@ -61,7 +63,7 @@ var WidgetMetadata = {
                     ]
                 },
                 {
-                    name: "sort_by", 
+                    name: "sort_by",
                     title: "排序方式",
                     type: "enumeration",
                     value: "all",
@@ -166,8 +168,9 @@ var WidgetMetadata = {
             title: "排行榜",
             description: "热门与最新影片榜单聚合",
             requiresWebView: false,
+            type: "video", // [修复] 补齐缺失的 type 字段
             functionName: "loadHotRankings",
-            cacheDuration: 300, 
+            cacheDuration: 300,
             params: [
                 {
                     name: "list_type",
@@ -190,6 +193,7 @@ var WidgetMetadata = {
             title: "新番预告",
             description: "查看即将上映的新番",
             requiresWebView: false,
+            type: "video", // [修复] 补齐缺失的 type 字段
             functionName: "loadPreviews",
             cacheDuration: 3600,
             params: []
@@ -485,9 +489,3 @@ async function loadDetail(link) {
         return { id: link, type: "detail", videoUrl: link, title: "加载失败", description: errorMsg, posterPath: "", mediaType: "movie", link: link };
     }
 }
-"""
-
-with open("Hanime1-combined.js", "w", encoding="utf-8") as f:
-    f.write(script_content)
-
-print("File written successfully.")
