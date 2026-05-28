@@ -1,5 +1,5 @@
 var WidgetMetadata = {
-  id: "OleLive.Search",
+  id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
   version: "2.9.9",
