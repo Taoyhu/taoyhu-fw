@@ -1,3 +1,7 @@
+// @name 欧乐影视
+// @description 全能聚合
+// @version 2.9.9
+
 var WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
