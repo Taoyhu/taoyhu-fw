@@ -4,40 +4,51 @@ var WidgetMetadata = {
     description: "高级全标签筛选、热榜、新番",
     author: "廿二日",
     site: "https://hanime1.me",
-    version: "1.3.1",
+    version: "1.3.2",
     requiredVersion: "0.0.2",
     detailCacheDuration: 300,
     search: {
-        title: "高级搜索",
+        title: "快捷搜索",
         functionName: "searchVideos",
-        type: "video",
         params: [
             { name: "keyword", title: "搜索关键词", type: "input", description: "输入关键词", value: "" },
-            {
-                name: "sort_by",
-                title: "排序方式",
-                type: "enumeration",
-                description: "排序规则",
-                value: "all",
-                enumOptions: [
-                    { title: "全部", value: "all" },
-                    { title: "最新上市", value: "new_release" },
-                    { title: "最新上传", value: "latest_upload" },
-                    { title: "本日排行", value: "daily_rank" },
-                    { title: "本周排行", value: "weekly_rank" },
-                    { title: "本月排行", value: "monthly_rank" },
-                    { title: "观看次数", value: "views" },
-                    { title: "点赞比例", value: "likes" },
-                    { title: "时长最长", value: "duration" },
-                    { title: "他们在看", value: "watching" }
-                ]
-            },
             { name: "page", title: "页码", type: "page", description: "页码", value: "1" }
         ]
     },
     modules: [
         {
-            title: "高级检索",
+            title: "搜索",
+            description: "关键词与排序组合检索",
+            requiresWebView: false,
+            type: "video",
+            functionName: "searchVideos",
+            cacheDuration: 300,
+            params: [
+                { name: "keyword", title: "搜索关键词", type: "input", description: "在此输入你想搜索的影片", value: "" },
+                {
+                    name: "sort_by",
+                    title: "排序方式",
+                    type: "enumeration",
+                    description: "排序规则",
+                    value: "all",
+                    enumOptions: [
+                        { title: "全部", value: "all" },
+                        { title: "最新上市", value: "new_release" },
+                        { title: "最新上传", value: "latest_upload" },
+                        { title: "本日排行", value: "daily_rank" },
+                        { title: "本周排行", value: "weekly_rank" },
+                        { title: "本月排行", value: "monthly_rank" },
+                        { title: "观看次数", value: "views" },
+                        { title: "点赞比例", value: "likes" },
+                        { title: "时长最长", value: "duration" },
+                        { title: "他们在看", value: "watching" }
+                    ]
+                },
+                { name: "page", title: "页码", type: "page", description: "页码", value: "1" }
+            ]
+        },
+        {
+            title: "分类",
             description: "高级全标签筛选",
             requiresWebView: false,
             type: "video",
@@ -188,15 +199,6 @@ var WidgetMetadata = {
                 },
                 { name: "page", title: "页码", type: "page", description: "页码", value: "1" }
             ]
-        },
-        {
-            title: "新番预告",
-            description: "查看即将上映的新番",
-            requiresWebView: false,
-            type: "video",
-            functionName: "loadPreviews",
-            cacheDuration: 3600,
-            params: []
         }
     ]
 };
@@ -205,11 +207,9 @@ const BASE_URL = "https://hanime1.me";
 const REQUEST_TIMEOUT = 12000;
 
 const S2T_MAP = {
-    // 影片属性与基础分类
     "无码": "無碼", "AI解码": "AI解碼", "中文字幕": "中文字幕", "中文配音": "中文配音", 
     "同人作品": "同人作品", "断面图": "斷面圖", "动态": "動態", "动画": "動畫", 
     "里番": "裏番", "泡面番": "泡麵番", 
-    // 人物关系与设定
     "师生": "師生", "情侣": "情侶", "青梅竹马": "青梅竹馬", "处女": "處女", 
     "御姐": "御姐", "熟女": "熟女", "女教师": "女教師", "男教师": "男教師", 
     "女医生": "女醫生", "女病人": "女病人", "护士": "護士", "女警": "女警", 
@@ -218,7 +218,6 @@ const S2T_MAP = {
     "吸血鬼": "吸血鬼", "兽娘": "獸娘", "机械娘": "機械娘", "痴女": "痴女", 
     "不良少女": "不良少女", "傲娇": "傲嬌", "病娇": "病嬌", "无表情": "無表情", 
     "伪娘": "偽娘",
-    // 外貌身材
     "短发": "短髮", "马尾": "馬尾", "双马尾": "雙馬尾", "丸子头": "丸子頭", 
     "乳环": "乳環", "舌环": "舌環", "贫乳": "貧乳", "黑皮肤": "黑皮膚", 
     "晒痕": "曬痕", "眼镜娘": "眼鏡娘", "兽耳": "獸耳", "尖耳朵": "尖耳朵", 
@@ -229,13 +228,11 @@ const S2T_MAP = {
     "紧身衣": "緊身衣", "丁字裤": "丁字褲", "高跟鞋": "高跟鞋", "睡衣": "睡衣", 
     "婚纱": "婚紗", "古装": "古裝", "刺青": "刺青", "淫纹": "淫紋", 
     "身体写字": "身體寫字",
-    // 情境场所
     "校园": "校園", "图书馆": "圖書館", "游泳池": "游泳池", "爱情宾馆": "愛情賓館", 
     "医院": "醫院", "办公室": "辦公室", "窗边": "窗邊", "公共厕所": "公共廁所", 
     "公众场合": "公眾場合", "户外野战": "戶外野戰", "电车": "電車", "车震": "車震", 
     "露营帐篷": "露營帳篷", "电影院": "電影院", "健身房": "健身房", "沙滩": "沙灘", 
     "监狱": "監獄",
-    // 故事剧情
     "纯爱": "純愛", "恋爱喜剧": "戀愛喜劇", "后宫": "後宮", "十指紧扣": "十指緊扣", 
     "开大车": "開大車", "精神控制": "精神控制", "药物": "藥物", "痴汉": "痴漢", 
     "阿嘿颜": "阿嘿顏", "精神崩溃": "精神崩潰", "猎奇": "獵奇", "捆绑": "捆綁", 
@@ -246,7 +243,6 @@ const S2T_MAP = {
     "摄影": "攝影", "睡眠奸": "睡眠姦", "机械奸": "機械姦", "虫奸": "蟲姦", 
     "性转换": "性轉換", "时间停止": "時間停止", "异世界": "異世界", "怪兽": "怪獸", 
     "世界末日": "世界末日",
-    // 性交体位
     "手交": "手交", "指交": "指交", "乳交": "乳交", "乳头交": "乳頭交", 
     "肛交": "肛交", "双洞齐下": "雙洞齊下", "脚交": "腳交", "拳交": "拳交", 
     "群交": "群交", "口交": "口交", "深喉咙": "深喉嚨", "吞精": "吞精", 
@@ -457,15 +453,6 @@ async function loadHotRankings(params) {
     
     const referer = page > 1 ? url.replace(`page=${page}`, `page=${page-1}`) : BASE_URL;
     return fetchAndParse(url, referer);
-}
-
-async function loadPreviews() {
-    const d = new Date();
-    const year = d.getFullYear();
-    let month = d.getMonth() + 1;
-    let paddedMonth = month < 10 ? '0' + month : month;
-    const url = `${BASE_URL}/previews/${year}-${paddedMonth}`;
-    return fetchAndParse(url, BASE_URL); 
 }
 
 async function loadDetail(link) {
