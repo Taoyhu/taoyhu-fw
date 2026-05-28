@@ -4,8 +4,9 @@ var WidgetMetadata = {
   icon: "",
   version: "2.9.9",
   requiredVersion: "0.0.1",
-  description: "欧乐影视（支持Cookie登录VIP）+ 独立搜索模块（直接搜索欧乐全部资源）+ 分类浏览",
-  author: "MoYan",
+  description: "全能聚合",
+  author: "廿二日",
+  site: "https://new.olevod.com",
   globalParams: [
     { name: "ApiHost", title: "欧乐API地址 (可填镜像站)", type: "input", value: "https://api.olelive.com" },
     { name: "Cookie", title: "欧乐Cookie (从浏览器登录后复制，留空则只看免费资源)", type: "input", value: "" },
