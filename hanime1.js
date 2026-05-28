@@ -1,5 +1,5 @@
 var WidgetMetadata = {
-    id: "hanimeTao", 
+    id: "hanime1Tao", 
     title: "Hanime1",
     description: "高级全标签筛选、热榜、新番",
     author: "廿二日", 
