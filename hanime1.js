@@ -1,7 +1,11 @@
+// @name Hanime1
+// @description 全标签筛选、热榜、搜索
+// @version 1.3.2
+
 var WidgetMetadata = {
     id: "hanime1Tao",
     title: "Hanime1",
-    description: "高级全标签筛选、热榜、新番",
+    description: "全标签筛选、热榜、搜索",
     author: "廿二日",
     site: "https://hanime1.me",
     version: "1.3.2",
