@@ -1,14 +1,14 @@
 // @name Hanime1
-// @description 全标签筛选、热榜、搜索
-// @version 1.3.3
+// @description 标签、热榜、搜索
+// @version 1.4.0
 
 var WidgetMetadata = {
     id: "hanime1Tao",
     title: "Hanime1",
-    description: "全标签筛选、热榜、搜索",
+    description: "标签、热榜、搜索",
     author: "廿二日",
     site: "https://hanime1.me",
-    version: "1.3.3",
+    version: "1.4.0",
     requiredVersion: "0.0.2",
     detailCacheDuration: 300,
     search: {
@@ -200,7 +200,8 @@ var WidgetMetadata = {
                         { title: "本月排行", value: "monthly_rank" },
                         { title: "最新上市", value: "new_release" }
                     ]
-                }
+                },
+                { name: "page", title: "页码", type: "page", description: "页码", value: "1" }
             ]
         }
     ]
@@ -208,6 +209,70 @@ var WidgetMetadata = {
 
 const BASE_URL = "https://hanime1.me";
 const REQUEST_TIMEOUT = 12000;
+
+const S2T_MAP = {
+    "无码": "無碼", "AI解码": "AI解碼", "中文字幕": "中文字幕", "中文配音": "中文配音", 
+    "同人作品": "同人作品", "断面图": "斷面圖", "动态": "動態", "动画": "動畫", 
+    "里番": "裏番", "泡面番": "泡麵番", 
+    "师生": "師生", "情侣": "情侶", "青梅竹马": "青梅竹馬", "处女": "處女", 
+    "御姐": "御姐", "熟女": "熟女", "女教师": "女教師", "男教师": "男教師", 
+    "女医生": "女醫生", "女病人": "女病人", "护士": "護士", "女警": "女警", 
+    "女仆": "女僕", "魔女": "魔女", "风俗娘": "風俗娘", "女战士": "女戰士", 
+    "女骑士": "女騎士", "异种族": "異種族", "妖精": "妖精", "魔物娘": "魔物娘", 
+    "吸血鬼": "吸血鬼", "兽娘": "獸娘", "机械娘": "機械娘", "痴女": "痴女", 
+    "不良少女": "不良少女", "傲娇": "傲嬌", "病娇": "病嬌", "无表情": "無表情", 
+    "伪娘": "偽娘",
+    "短发": "短髮", "马尾": "馬尾", "双马尾": "雙馬尾", "丸子头": "丸子頭", 
+    "乳环": "乳環", "舌环": "舌環", "贫乳": "貧乳", "黑皮肤": "黑皮膚", 
+    "晒痕": "曬痕", "眼镜娘": "眼鏡娘", "兽耳": "獸耳", "尖耳朵": "尖耳朵", 
+    "异色瞳": "異色瞳", "肌肉女": "肌肉女", "阴毛": "陰毛", "腋毛": "腋毛", 
+    "大屌": "大屌", "着衣": "著衣", "体操服": "體操服", "泳装": "泳裝", 
+    "和服": "和服", "围裙": "圍裙", "啦啦队": "啦啦隊", "丝袜": "絲襪", 
+    "吊袜带": "吊襪帶", "热裤": "熱褲", "迷你裙": "迷你裙", "性感内衣": "性感內衣", 
+    "紧身衣": "緊身衣", "丁字裤": "丁字褲", "高跟鞋": "高跟鞋", "睡衣": "睡衣", 
+    "婚纱": "婚紗", "古装": "古裝", "刺青": "刺青", "淫纹": "淫紋", 
+    "身体写字": "身體寫字",
+    "校园": "校園", "图书馆": "圖書館", "游泳池": "游泳池", "爱情宾馆": "愛情賓館", 
+    "医院": "醫院", "办公室": "辦公室", "窗边": "窗邊", "公共厕所": "公共廁所", 
+    "公众场合": "公眾場合", "户外野战": "戶外野戰", "电车": "電車", "车震": "車震", 
+    "露营帐篷": "露營帳篷", "电影院": "電影院", "健身房": "健身房", "沙滩": "沙灘", 
+    "监狱": "監獄",
+    "纯爱": "純愛", "恋爱喜剧": "戀愛喜劇", "后宫": "後宮", "十指紧扣": "十指緊扣", 
+    "开大车": "開大車", "精神控制": "精神控制", "药物": "藥物", "痴汉": "痴漢", 
+    "阿嘿颜": "阿嘿顏", "精神崩溃": "精神崩潰", "猎奇": "獵奇", "捆绑": "捆綁", 
+    "眼罩": "眼罩", "项圈": "項圈", "调教": "調教", "异物插入": "異物插入", 
+    "寻欢洞": "尋歡洞", "肉便器": "肉便器", "性奴隶": "性奴隸", "胃凸": "胃凸", 
+    "强制": "強制", "轮奸": "輪姦", "性暴力": "性暴力", "逆强制": "逆強制", 
+    "女王样": "女王樣", "榨精": "榨精", "出轨": "出軌", "醉酒": "醉酒", 
+    "摄影": "攝影", "睡眠奸": "睡眠姦", "机械奸": "機械姦", "虫奸": "蟲姦", 
+    "性转换": "性轉換", "时间停止": "時間停止", "异世界": "異世界", "怪兽": "怪獸", 
+    "世界末日": "世界末日",
+    "手交": "手交", "指交": "指交", "乳交": "乳交", "乳头交": "乳頭交", 
+    "肛交": "肛交", "双洞齐下": "雙洞齊下", "脚交": "腳交", "拳交": "拳交", 
+    "群交": "群交", "口交": "口交", "深喉咙": "深喉嚨", "吞精": "吞精", 
+    "舔蛋蛋": "舔蛋蛋", "自慰": "自慰", "腋交": "腋交", "舔腋下": "舔腋下", 
+    "发交": "髮交", "舔耳朵": "舔耳朵", "舔脚": "舔腳", "内射": "內射", 
+    "外射": "外射", "颜射": "顏射", "潮吹": "潮吹", "怀孕": "懷孕", 
+    "喷奶": "噴奶", "放尿": "放尿", "排便": "排便", "骑乘位": "騎乘位", 
+    "背后位": "背後位", "颜面骑乘": "顏面騎乘", "火车便当": "火車便當", 
+    "一字马": "一字馬", "性玩具": "性玩具", "飞机杯": "飛機杯", 
+    "跳蛋": "跳蛋", "毒龙钻": "毒龍鑽", "触手": "觸手", "兽交": "獸交", 
+    "颈手枷": "頸手枷", "扯头发": "扯頭髮", "掐脖子": "掐脖子", 
+    "打屁股": "打屁股", "肉棒打脸": "肉棒打臉", "阴道外翻": "陰道外翻", 
+    "男乳首责": "男乳首責", "接吻": "接吻", "舌吻": "舌吻", "POV": "POV"
+};
+
+function convertToTraditional(text) {
+    if (!text) return "";
+    let result = text;
+    const sortedKeys = Object.keys(S2T_MAP).sort((a, b) => b.length - a.length);
+    for (const simp of sortedKeys) {
+        if (result.includes(simp)) {
+            result = result.split(simp).join(S2T_MAP[simp]);
+        }
+    }
+    return result;
+}
 
 function getCommonHeaders(refererUrl = BASE_URL + "/") {
     return {
@@ -238,120 +303,174 @@ function normalizeImageUrl(src) {
     return src;
 }
 
-function extractPoster($a, $) {
+function normalizeWatchUrl(href) {
+    if (!href) return "";
+    if (href.startsWith("http")) return href;
+    if (href.startsWith("/")) return BASE_URL + href;
+    return BASE_URL + "/" + href;
+}
+
+function stripHtmlText(text) {
+    return (text || "").replace(/\s+/g, " ").trim();
+}
+
+function safeText(text, fallback = "") {
+    const value = stripHtmlText(text);
+    return value || fallback;
+}
+
+function extractPoster($a) {
     let poster = "";
-    let $img = $a.find('.video-card-inner img').first();
-    if (!$img.length) $img = $a.find('img').first();
-    
-    if ($img.length) {
-        poster = $img.attr('data-src') || $img.attr('src') || $img.attr('data-original') || "";
-        if (poster.includes('background.jpg')) poster = "";
+    const selectors = ['img', 'source'];
+    for (const selector of selectors) {
+        const $node = $a.find(selector).first();
+        if ($node.length) {
+            poster = $node.attr('data-src') || $node.attr('data-original') || $node.attr('data-lazy-src') || $node.attr('src') || "";
+            if (poster && !poster.includes('background.jpg')) break;
+            poster = "";
+        }
     }
     if (!poster) {
-        const $cardImg = $a.closest('.search-doujin-videos, .home-rows-videos-div, .video-card').find('img').first();
-        if ($cardImg.length) {
-            poster = $cardImg.attr('data-src') || $cardImg.attr('src') || "";
+        const $fallback = $a.closest('article, .search-doujin-videos, .home-rows-videos-div, .video-card, li, div').find('img, source').first();
+        if ($fallback.length) {
+            poster = $fallback.attr('data-src') || $fallback.attr('data-original') || $fallback.attr('data-lazy-src') || $fallback.attr('src') || "";
             if (poster.includes('background.jpg')) poster = "";
         }
     }
     return normalizeImageUrl(poster);
 }
 
-async function fetchAndParse(url, referer) {
+function extractTitle($a) {
+    return stripHtmlText(
+        $a.find('.card-mobile-title, .home-rows-videos-title, .video-card-title, [class*="title"]').first().text() ||
+        $a.attr('title') ||
+        $a.find('img').attr('alt') ||
+        $a.text()
+    );
+}
+
+function parseListHtml(html, options = {}) {
+    if (!html || !html.trim()) return [];
+    const $ = Widget.html.load(html);
+    const items = [];
+    const seen = new Set();
+    const useLegacyImageFields = !!options.useLegacyImageFields;
+
+    $('a[href*="/watch?v="]').each((i, el) => {
+        const $a = $(el);
+        const href = $a.attr('href') || "";
+        const link = normalizeWatchUrl(href);
+        if (!link || seen.has(link)) return;
+        if (!/\/watch\?v=\d+/.test(link)) return;
+        seen.add(link);
+
+        const title = safeText(extractTitle($a));
+        if (!title) return;
+
+        const poster = extractPoster($a);
+        const cardText = stripHtmlText($a.closest('article, .search-doujin-videos, .home-rows-videos-div, .video-card, li, div').text());
+        const durationMatch = cardText.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
+        const duration = durationMatch ? durationMatch[1] : '';
+        const author = stripHtmlText(($a.closest('article, .search-doujin-videos, .home-rows-videos-div, .video-card, li, div').find('a[href*="/search?query="]').first().text() || ""));
+
+        items.push({
+            id: link,
+            type: "url",
+            title,
+            backdropPath: poster,
+            previewUrl: poster,
+            link,
+            mediaType: "movie",
+            description: author || cardText.replace(title, '').replace(duration, '').trim(),
+            releaseDate: duration,
+            playerType: "system",
+            image: useLegacyImageFields ? poster : undefined,
+            coverUrl: useLegacyImageFields ? poster : undefined,
+            posterPath: useLegacyImageFields ? poster : undefined
+        });
+    });
+
+    return items;
+}
+
+async function fetchAndParse(url, referer, options = {}) {
     try {
         const response = await httpGetWithTimeout(url, referer);
-        const $ = Widget.html.load(response.data);
-        const items = [];
-
-        $('a[href*="/watch?v="]').each((i, el) => {
-            const $a = $(el);
-            const href = $a.attr('href');
-            if (!href) return;
-
-            let link = href;
-            if (!link.startsWith('http')) link = BASE_URL + (link.startsWith('/') ? '' : '/') + link;
-            if (items.some(it => it.link === link)) return;
-
-            const poster = extractPoster($a, $);
-            let title = $a.find('.card-mobile-title, .home-rows-videos-title, [class*="title"]').first().text().trim();
-            if (!title) title = $a.find('img').attr('alt') || $a.attr('title') || "";
-            if (!title) {
-                const $header = $a.closest('div').prevAll('h3, h4, h5').first();
-                if ($header.length) title = $header.text().trim();
-            }
-            if (!title) return; 
-
-            const duration = $a.find('.card-mobile-duration, .duration, [class*="time"]').first().text().trim();
-            const author = $a.find('.card-mobile-user, .author, [class*="user"]').first().text().trim();
-
-            items.push({
-                id: link,
-                type: "url",
-                title: title,
-                posterPath: poster,
-                backdropPath: poster,
-                mediaType: "movie",
-                durationText: duration,
-                description: author || "影片",
-                link: link
-            });
-        });
-        return items;
+        return parseListHtml(response.data || "", options);
     } catch (e) {
         return [];
     }
 }
 
 function mapSortToApi(v) {
-    const m = {"new_release": "最新上市", "latest_upload": "最新上傳", "daily_rank": "本日排行", "weekly_rank": "本週排行", "monthly_rank": "本月排行", "views": "觀看次數", "likes": "點讚比例", "duration": "時長最長", "watching": "他們在看"};
+    const m = {
+        "new_release": "最新上市",
+        "latest_upload": "最新上傳",
+        "daily_rank": "本日排行",
+        "weekly_rank": "本週排行",
+        "monthly_rank": "本月排行",
+        "views": "觀看次數",
+        "likes": "點讚比例",
+        "duration": "時長最長",
+        "watching": "他們在看"
+    };
     return m[v] || "";
 }
 
 function mapGenreToApi(v) {
-    const m = {"rifan": "裏番", "paomian": "泡麵番", "motion": "Motion Anime", "3dcg": "3DCG", "2d": "2D動畫", "2_5d": "2.5D", "ai": "AI生成", "mmd": "MMD", "cosplay": "Cosplay"};
+    const m = {
+        "rifan": "裏番",
+        "paomian": "泡麵番",
+        "motion": "Motion Anime",
+        "3dcg": "3DCG",
+        "2d": "2D動畫",
+        "2_5d": "2.5D",
+        "ai": "AI生成",
+        "mmd": "MMD",
+        "cosplay": "Cosplay"
+    };
     return m[v] || "";
 }
 
 function mapTimeToApi(v) {
-    const m = {"24h": "過去 24 小時", "2d": "過去 2 天", "1w": "過去 1 週", "1m": "過去 1 個月", "3m": "過去 3 個月", "1y": "過去 1 年"};
+    const m = { "24h": "過去 24 小時", "2d": "過去 2 天", "1w": "過去 1 週", "1m": "過去 1 個月", "3m": "過去 3 個月", "1y": "過去 1 年" };
     return m[v] || "";
 }
 
 function mapDurationToApi(v) {
-    const m = {"1m_plus": "1 分鐘 +", "5m_plus": "5 分鐘 +", "10m_plus": "10 分鐘 +", "20m_plus": "20 分鐘 +", "30m_plus": "30 分鐘 +", "60m_plus": "60 分鐘 +", "0_10m": "0 - 10 分鐘", "0_20m": "0 - 20 分鐘"};
+    const m = { "1m_plus": "1 分鐘 +", "5m_plus": "5 分鐘 +", "10m_plus": "10 分鐘 +", "20m_plus": "20 分鐘 +", "30m_plus": "30 分鐘 +", "60m_plus": "60 分鐘 +", "0_10m": "0 - 10 分鐘", "0_20m": "0 - 20 分鐘" };
     return m[v] || "";
 }
 
+function buildSiteUrl(path, queryParts = []) {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const query = queryParts.filter(Boolean).join('&');
+    return query ? `${BASE_URL}${cleanPath}?${query}` : `${BASE_URL}${cleanPath}`;
+}
+
 function appendTagsToQuery(params, queryParts) {
-    ['tag_attr', 'tag_rel', 'tag_role', 'tag_body', 'tag_plot', 'tag_loc', 'tag_pos'].forEach(f => {
-        if (params[f] && params[f] !== 'all') {
-            params[f].split(/[\s,，]+/).forEach(t => {
-                if (t && t !== 'all') queryParts.push(`tags%5B%5D=${encodeURIComponent(t)}`);
-            });
-        }
-    });
-    if (params.tags && params.tags.trim()) {
-        params.tags.split(/[\s,，]+/).forEach(t => {
-            if (t && t !== 'all') queryParts.push(`tags%5B%5D=${encodeURIComponent(t)}`);
+    ['tag_attr', 'tag_rel', 'tag_role', 'tag_body', 'tag_plot', 'tag_loc', 'tag_pos'].forEach(field => {
+        const raw = params[field];
+        if (!raw || raw === 'all') return;
+        raw.split(/[\s,，]+/).forEach(tag => {
+            if (tag && tag !== 'all') queryParts.push(`tags%5B%5D=${encodeURIComponent(convertToTraditional(tag))}`);
         });
-    }
+    });
 }
 
 async function searchVideos(params) {
     const page = parseInt(params.page) || 1;
     const rawKeyword = params.keyword || "";
-    const sort = mapSortToApi(params.sort_by);
-
-    let url = `${BASE_URL}/search`;
+    const sort = mapSortToApi(params.sort_by || 'all');
     const queryParts = [];
-    
-    if (rawKeyword) queryParts.push(`query=${encodeURIComponent(rawKeyword)}`);
+
+    if (rawKeyword) queryParts.push(`query=${encodeURIComponent(convertToTraditional(rawKeyword))}`);
     if (sort) queryParts.push(`sort=${encodeURIComponent(sort)}`);
     appendTagsToQuery(params, queryParts);
     if (page > 1) queryParts.push(`page=${page}`);
 
-    if (queryParts.length > 0) url += '?' + queryParts.join('&');
-    const referer = page > 1 ? url.replace(`page=${page}`, `page=${page-1}`) : BASE_URL;
+    const url = buildSiteUrl('/search', queryParts);
+    const referer = page > 1 ? buildSiteUrl('/search', queryParts.map(p => p.startsWith('page=') ? `page=${page-1}` : p)) : BASE_URL + '/';
     return fetchAndParse(url, referer);
 }
 
@@ -361,18 +480,17 @@ async function loadAdvancedGenre(params) {
     const sort = mapSortToApi(params.sort_by || "all"); 
     const time = mapTimeToApi(params.upload_time);
     const duration = mapDurationToApi(params.duration_filter);
+    const queryParts = [];
 
-    let url = `${BASE_URL}/search`;
-    const q = [];
-    if (genre) q.push(`genre=${encodeURIComponent(genre)}`);
-    if (sort) q.push(`sort=${encodeURIComponent(sort)}`);
-    if (time) q.push(`time=${encodeURIComponent(time)}`);
-    if (duration) q.push(`duration=${encodeURIComponent(duration)}`);
-    appendTagsToQuery(params, q);
-    if (page > 1) q.push(`page=${page}`);
+    if (genre) queryParts.push(`genre=${encodeURIComponent(genre)}`);
+    if (sort) queryParts.push(`sort=${encodeURIComponent(sort)}`);
+    if (time) queryParts.push(`time=${encodeURIComponent(time)}`);
+    if (duration) queryParts.push(`duration=${encodeURIComponent(duration)}`);
+    appendTagsToQuery(params, queryParts);
+    if (page > 1) queryParts.push(`page=${page}`);
     
-    url += (q.length > 0 ? '?' + q.join('&') : '');
-    const referer = page > 1 ? url.replace(`page=${page}`, `page=${page-1}`) : BASE_URL;
+    const url = buildSiteUrl('/search', queryParts);
+    const referer = page > 1 ? buildSiteUrl('/search', queryParts.map(p => p.startsWith('page=') ? `page=${page-1}` : p)) : BASE_URL + '/';
     return fetchAndParse(url, referer);
 }
 
@@ -386,84 +504,98 @@ async function loadHotRankings(params) {
         "monthly_rank": "本月排行",
         "new_release": "最新上市"
     };
-    
     const sortVal = typeMap[params.list_type || "watching"];
-    let url = `${BASE_URL}/search?sort=${encodeURIComponent(sortVal)}`;
-    if (page > 1) url += `&page=${page}`;
+    const queryParts = [];
+    if (sortVal) queryParts.push(`sort=${encodeURIComponent(sortVal)}`);
+    if (page > 1) queryParts.push(`page=${page}`);
     
-    const referer = page > 1 ? url.replace(`page=${page}`, `page=${page-1}`) : BASE_URL;
+    const url = buildSiteUrl('/search', queryParts);
+    const referer = page > 1 ? buildSiteUrl('/search', queryParts.map(p => p.startsWith('page=') ? `page=${page-1}` : p)) : BASE_URL + '/';
     return fetchAndParse(url, referer);
 }
 
 async function loadDetail(link) {
     try {
-        const response = await httpGetWithTimeout(link, BASE_URL + "/search");
-        const htmlData = response.data;
-        const $ = Widget.html.load(htmlData);
-        let vUrl = "";
+        const response = await httpGetWithTimeout(link, link);
+        const html = response.data || "";
+        const $ = Widget.html.load(html);
 
-        const m3u8Match = htmlData.match(/(https:\/\/[^"'\s]+\.m3u8[^"'\s]*)/);
-        if (m3u8Match) {
-            vUrl = m3u8Match[1];
-        } else {
-            const qualityIds = ['#video-sd', '#video-hd', '#video-720p', '#video-1080p'];
-            for (const id of qualityIds) {
-                const val = $(id).val();
-                if (val) { vUrl = val; break; }
-            }
-            if (!vUrl) {
-                const sourceMatch = htmlData.match(/source\s*=\s*['"](https:\/\/[^'"]+)['"]/);
-                if (sourceMatch) vUrl = sourceMatch[1];
-            }
-            if (!vUrl) vUrl = $('video source').attr('src');
+        let videoUrl = "";
+        const candidates = [
+            $('video source').attr('src'),
+            $('source[type="application/x-mpegURL"]').attr('src'),
+            $('[data-src*="m3u8"]').attr('data-src'),
+            $('[data-hls*="m3u8"]').attr('data-hls'),
+            $('#video-sd').val(),
+            $('#video-hd').val(),
+            $('#video-720p').val(),
+            $('#video-1080p').val(),
+            $('[src*="m3u8"]').attr('src')
+        ];
+        for (const candidate of candidates) {
+            if (candidate) { videoUrl = candidate; break; }
         }
+        if (!videoUrl) {
+            const match = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/);
+            if (match) videoUrl = match[0];
+        }
+        if (!videoUrl) {
+            const match = html.match(/source\s*=\s*['"](https?:\/\/[^'"]+)['"]/);
+            if (match) videoUrl = match[1];
+        }
+        if (!videoUrl) throw new Error('video_url_not_found');
 
-        if (!vUrl) throw new Error("video_url_not_found");
-        vUrl = vUrl.replace(/&amp;/g, '&');
+        videoUrl = videoUrl.replace(/&amp;/g, '&');
 
-        const title = $('meta[property="og:title"]').attr('content') || $('title').text() || "标题未知";
-        const desc = $('meta[property="og:description"]').attr('content') || "";
-        const cover = $('meta[property="og:image"]').attr('content') || "";
+        const title = safeText(convertToTraditional($('meta[property="og:title"]').attr('content') || $('title').text() || '标题未知'), '标题未知');
+        const desc = safeText($('meta[property="og:description"]').attr('content') || '');
+        const cover = $('meta[property="og:image"]').attr('content') || '';
 
         const childItems = [];
-        $('.home-rows-videos-div a[href*="/watch?v="]').each((i, el) => {
+        $('a[href*="/watch?v="]').each((i, el) => {
             if (i >= 12) return false;
             const $a = $(el);
-            let recLink = $a.attr('href');
-            if (!recLink) return;
-            if (!recLink.startsWith('http')) recLink = BASE_URL + (recLink.startsWith('/') ? '' : '/') + recLink;
-
-            const recPoster = extractPoster($a, $);
-            let recTitle = $a.find('.home-rows-videos-title, [class*="title"]').first().text().trim();
-            if (!recTitle) recTitle = $a.find('img').attr('alt') || "相关推荐";
+            const recLink = normalizeWatchUrl($a.attr('href'));
+            if (!recLink || recLink === link) return;
+            const recPoster = extractPoster($a);
+            const recTitle = safeText(convertToTraditional(stripHtmlText($a.find('.home-rows-videos-title, .card-mobile-title, [class*="title"]').first().text() || $a.attr('title') || $a.find('img').attr('alt') || '相关视频')), '相关视频');
 
             childItems.push({
                 id: recLink,
-                type: "url",
+                type: 'url',
                 title: recTitle,
                 posterPath: recPoster,
                 backdropPath: recPoster,
-                mediaType: "movie",
+                mediaType: 'movie',
                 link: recLink
             });
         });
 
         return {
             id: link,
-            type: "detail",
-            videoUrl: vUrl,
-            title: title,
+            type: 'detail',
+            videoUrl,
+            title,
             description: desc,
             posterPath: normalizeImageUrl(cover),
             backdropPath: normalizeImageUrl(cover),
-            mediaType: "movie",
-            link: link,
-            childItems: childItems,
+            mediaType: 'movie',
+            link,
+            childItems,
             headers: getCommonHeaders(link)
         };
     } catch (error) {
-        let errorMsg = "无法加载视频，请重试。";
-        if (error.message === "video_url_not_found") errorMsg = "未找到流媒体地址，请检查网络节点。";
-        return { id: link, type: "detail", videoUrl: link, title: "加载失败", description: errorMsg, posterPath: "", mediaType: "movie", link: link };
+        let errorMsg = '无法加载视频，请重试。';
+        if (error.message === 'video_url_not_found') errorMsg = '未找到视频地址，可能需登录或该视频已失效。';
+        return {
+            id: link,
+            type: 'detail',
+            videoUrl: link,
+            title: '加载失败',
+            description: errorMsg,
+            posterPath: '',
+            mediaType: 'movie',
+            link
+        };
     }
 }
