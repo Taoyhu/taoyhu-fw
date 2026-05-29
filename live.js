@@ -212,7 +212,7 @@ WidgetMetadata = {
             ],
         },
     ],
-    version: "2.1",
+    version: "1.0.2",
     requiredVersion: "0.0.1",
     description: "解析直播订阅链接，尝鲜",
     author: "廿二日",
