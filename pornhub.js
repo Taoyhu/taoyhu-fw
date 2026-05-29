@@ -7,9 +7,9 @@ const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",val
 WidgetMetadata = {
     id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.2",
+    version: "1.1.3",
     requiredVersion: "0.0.1",
-    description: "Pornhub网站聚合",
+    description: "Pornhub网站聚合，账号登录",
     author: "廿二日",
     site: "https://cn.pornhub.com",
     detailCacheDuration: 60,
