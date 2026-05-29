@@ -4,7 +4,7 @@ var WidgetMetadata = {
     description: "标签、热榜、搜索",
     author: "廿二日",
     site: "https://hanime1.me",
-    version: "1.4.0",
+    version: "1.4.1",
     requiredVersion: "0.0.2",
     detailCacheDuration: 300,
     search: {
