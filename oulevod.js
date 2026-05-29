@@ -1,4 +1,4 @@
-var WidgetMetadata = {
+WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
