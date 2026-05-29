@@ -2,7 +2,7 @@ var WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
-  version: "2.9.9",
+  version: "1.2.1",
   requiredVersion: "0.0.1",
   description: "全能聚合",
   author: "廿二日",
