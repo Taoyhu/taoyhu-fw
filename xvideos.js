@@ -71,10 +71,10 @@ function parseVideoList($) {
 }
 
 WidgetMetadata = {
-    id: 'XVideosTao',
-    title: 'XVideos',
+    id: 'xvideosTao',
+    title: 'xvideos',
     description: 'xvideos视频资源浏览模块',
-    version: "1.0.1",
+    version: "1.0.2",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://www.xvideos.com',
@@ -103,9 +103,9 @@ WidgetMetadata = {
                 {
                     name: 'mode',
                     title: "类型",
-                    type: 'input',
+                    type: 'enumeration',
                     value: 'free',
-                    placeholders: [
+                    enumOptions: [
                         { title: '免费', value: 'free' },
                         { title: 'RED视频', value: 'red' }
                     ]
@@ -113,9 +113,9 @@ WidgetMetadata = {
                 {
                     name: 'archive',
                     title: "月份",
-                    type: 'input',
+                    type: 'enumeration',
                     value: '2026-04',
-                    placeholders: [
+                    enumOptions: [
                         { title: '2026-04', value: '2026-04' },
                         { title: '2026-03', value: '2026-03' },
                         { title: '2026-02', value: '2026-02' },
@@ -289,9 +289,9 @@ WidgetMetadata = {
                 {
                     name: 'category',
                     title: "分类",
-                    type: 'input',
-                    value: '',
-                    placeholders: [
+                    type: 'enumeration',
+                    value: 'lang/chinese',
+                    enumOptions: [
                         { title: '中文色情', value: 'lang/chinese' },
                         { title: 'AI', value: 'c/AI-239' },
                         { title: '业余', value: 'c/Amateur-65' },
@@ -348,9 +348,9 @@ WidgetMetadata = {
                 {
                     name: 'tag',
                     title: "标签",
-                    type: 'input',
-                    value: '',
-                    placeholders: [
+                    type: 'enumeration',
+                    value: 'amateur',
+                    enumOptions: [
                         { title: '业余', value: 'amateur' },
                         { title: '亚洲', value: 'asian' },
                         { title: '最佳', value: 'best' },
@@ -416,9 +416,9 @@ WidgetMetadata = {
                 {
                     name: 'channel',
                     title: "频道",
-                    type: 'input',
-                    value: '',
-                    placeholders: [
+                    type: 'enumeration',
+                    value: 'asiam',
+                    enumOptions: [
                         { title: 'AsiaM', value: 'asiam' },
                         { title: 'Vixen', value: 'vixen-1' },
                         { title: 'Tushy', value: 'tushy_com' },
@@ -502,8 +502,9 @@ WidgetMetadata = {
                 {
                     name: 'pornstar',
                     title: "色情明星",
-                    type: 'input',
-                    placeholders: [
+                    type: 'enumeration',
+                    value: 'su-chang-model',
+                    enumOptions: [
                         { title: 'Su Chang', value: 'su-chang-model' },
                         { title: 'Yui Hatano', value: 'yui-hatano-1' },
                         { title: 'Sweetie Fox', value: 'sweetie-fox1' },
