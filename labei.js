@@ -1,7 +1,11 @@
+// @name 厂牌检索
+// @description TMDB厂牌与平台库
+// @version 2.1.0
+
 var WidgetMetadata = {
-    id: "taoyhu_tmdb_pro",
-    title: "厂牌平台检索",
-    author: "TaoYhu",
+    id: "labeiTao",
+    title: "厂牌检索",
+    author: "廿二日",
     site: "https://www.themoviedb.org",
     description: "TMDB厂牌与平台库",
     version: "2.1.0",
