@@ -9,8 +9,6 @@ var WidgetMetadata = {
   site: "https://new.olevod.com",
   globalParams: [
     { name: "ApiHost", title: "欧乐API地址 (可填镜像站)", type: "input", value: "https://api.olelive.com" },
-    { name: "Cookie", title: "欧乐Cookie (从浏览器登录后复制，留空则只看免费资源)", type: "input", value: "" },
-    { name: "TestTitle", title: "测试片名 (手动输入)", type: "input", value: "" }
   ],
   search: { 
     title: "搜索", 
