@@ -55,7 +55,6 @@ WidgetMetadata = {
                         { value: 'ori', title: "91原创" },
                         { value: 'long', title: "10分钟以上" },
                         { value: 'longer', title: "20分钟以上" },
-                        { value: 'hd', title: "高清" },
                         { value: 'mf', title: "收藏最多" }
                     ]
                 },
