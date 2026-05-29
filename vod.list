@@ -1,0 +1,54 @@
+# 📺 VOD 影视聚合资源规则集
+
+# --- 影视采集接口 (APIs) ---
+DOMAIN-SUFFIX,1080zyku.com
+DOMAIN-SUFFIX,155api.com
+DOMAIN-SUFFIX,apilj.com
+DOMAIN-SUFFIX,apiyutu.com
+DOMAIN-SUFFIX,bfzyapi.com
+DOMAIN-SUFFIX,bwzyz.com
+DOMAIN-SUFFIX,dbzy.tv
+DOMAIN-SUFFIX,dyttzyapi.com
+DOMAIN-SUFFIX,ffzy5.tv
+DOMAIN-SUFFIX,guangsuapi.com
+DOMAIN-SUFFIX,hongniuzy2.com
+DOMAIN-SUFFIX,hongniuzy3.com
+DOMAIN-SUFFIX,huyaapi.com
+DOMAIN-SUFFIX,ikunzyapi.com
+DOMAIN-SUFFIX,jingpinx.com
+DOMAIN-SUFFIX,jinyingzy.com
+DOMAIN-SUFFIX,jyzyapi.com
+DOMAIN-SUFFIX,jszyapi.com
+DOMAIN-SUFFIX,lbapi9.com
+DOMAIN-SUFFIX,lovedan.net
+DOMAIN-SUFFIX,lziapi.com
+DOMAIN-SUFFIX,maotaizy.cc
+DOMAIN-SUFFIX,p2100.net
+DOMAIN-SUFFIX,rycjapi.com
+DOMAIN-SUFFIX,shayuapi.com
+DOMAIN-SUFFIX,subocaiji.com
+DOMAIN-SUFFIX,ukuapi88.com
+DOMAIN-SUFFIX,wolongzyw.com
+DOMAIN-SUFFIX,wujinapi.cc
+DOMAIN-SUFFIX,wujinapi.com
+DOMAIN-SUFFIX,wwzy.tv
+DOMAIN-SUFFIX,xiaojizy.live
+DOMAIN-SUFFIX,xinlangapi.com
+DOMAIN-SUFFIX,zuidapi.com
+DOMAIN-SUFFIX,zuidazy.me
+
+# --- 品牌影视与特色站点 ---
+DOMAIN-SUFFIX,muou.site
+DOMAIN-SUFFIX,666291.xyz
+DOMAIN-SUFFIX,muou.asia
+DOMAIN-SUFFIX,xxooo.cf
+DOMAIN-SUFFIX,miqk.cc
+DOMAIN-SUFFIX,fmao.shop
+DOMAIN-SUFFIX,yydsys.cc
+DOMAIN-SUFFIX,nxog.eu.org
+DOMAIN-SUFFIX,leijing1.com
+DOMAIN-SUFFIX,erxiaofn.click
+
+# --- 固定 IP 规则 ---
+IP-CIDR,154.222.27.33/32
+IP-CIDR,154.201.83.50/32
