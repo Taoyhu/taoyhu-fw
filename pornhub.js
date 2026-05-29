@@ -9,7 +9,7 @@ WidgetMetadata = {
     title: "pornhub",
     version: "1.1.2",
     requiredVersion: "0.0.1",
-    description: "Pornhub网站聚合，支持全局搜索与统一身份认证",
+    description: "Pornhub网站聚合",
     author: "廿二日",
     site: "https://cn.pornhub.com",
     detailCacheDuration: 60,
