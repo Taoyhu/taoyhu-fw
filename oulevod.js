@@ -1,8 +1,8 @@
-const WidgetMetadata = {
+WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
-  version: "1.1.3",
+  version: "1.1.4",
   requiredVersion: "0.0.1",
   description: "全能聚合",
   author: "廿二日",
@@ -29,13 +29,13 @@ const WidgetMetadata = {
   ]
 };
 
-const DEFAULT_API_HOST = "https://api.olelive.com";
-const REFERER = "https://new.olevod.com";
-const DEFAULT_PIC_HOST = "https://static.olelive.com/";
-const CACHE_TTL = 3600000;
-let GLOBAL_COOKIE = "";
+var DEFAULT_API_HOST = "https://api.olelive.com";
+var REFERER = "https://new.olevod.com";
+var DEFAULT_PIC_HOST = "https://static.olelive.com/";
+var CACHE_TTL = 3600000;
+var GLOBAL_COOKIE = "";
 
-const REQUEST_HEADERS = {
+var REQUEST_HEADERS = {
   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
   "Accept": "application/json, text/plain, */*",
   "Accept-Language": "zh-CN,zh;q=0.9",
@@ -44,7 +44,7 @@ const REQUEST_HEADERS = {
   "Content-Type": "application/json"
 };
 
-const cacheStore = new Map();
+var cacheStore = new Map();
 
 function getFromCache(key) {
   const entry = cacheStore.get(key);
@@ -123,7 +123,9 @@ function signature() {
   return n.slice(0, 3) + a[0] + n.slice(6, 11) + a[1] + n.slice(14, 19) + a[2] + n.slice(22, 27) + a[3] + n.slice(30);
 }
 
-const normalizeTitle = t => t?.toLowerCase().replace(/[^\u4e00-\u9fa5a-z0-9]/g, "") || "";
+function normalizeTitle(t) {
+  return t?.toLowerCase().replace(/[^\u4e00-\u9fa5a-z0-9]/g, "") || "";
+}
 
 async function fetchApi(url) {
   for (let i = 0; i < 2; i++) {
@@ -156,8 +158,8 @@ async function searchVodOle(apiHost, keyword, pg = 1) {
   }));
 }
 
-const CATEGORY_MAP = { movie: 1, tv: 2, variety: 3, anime: 4, short: 14 };
-const CATEGORY_NAMES = { 1: "电影", 2: "剧集", 3: "综艺", 4: "动漫", 14: "短剧" };
+var CATEGORY_MAP = { movie: 1, tv: 2, variety: 3, anime: 4, short: 14 };
+var CATEGORY_NAMES = { 1: "电影", 2: "剧集", 3: "综艺", 4: "动漫", 14: "短剧" };
 
 async function fetchCategoryList(params, cateKey) {
   const apiHost = (params?.ApiHost || DEFAULT_API_HOST).replace(/\/$/, "");
@@ -179,11 +181,11 @@ async function fetchCategoryList(params, cateKey) {
   }));
 }
 
-const loadMovieList = p => fetchCategoryList(p, "movie");
-const loadTvList = p => fetchCategoryList(p, "tv");
-const loadVarietyList = p => fetchCategoryList(p, "variety");
-const loadAnimeList = p => fetchCategoryList(p, "anime");
-const loadShortList = p => fetchCategoryList(p, "short");
+function loadMovieList(params) { return fetchCategoryList(params, "movie"); }
+function loadTvList(params) { return fetchCategoryList(params, "tv"); }
+function loadVarietyList(params) { return fetchCategoryList(params, "variety"); }
+function loadAnimeList(params) { return fetchCategoryList(params, "anime"); }
+function loadShortList(params) { return fetchCategoryList(params, "short"); }
 
 async function searchOle(params = {}) {
   GLOBAL_COOKIE = params.Cookie || "";
