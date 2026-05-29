@@ -1,5 +1,3 @@
-// @name 廿二日自用-hanime1
-
 var WidgetMetadata = {
     id: "hanime1Tao",
     title: "Hanime1",
