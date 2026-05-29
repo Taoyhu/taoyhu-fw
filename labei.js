@@ -1,5 +1,3 @@
-// @name 廿二日自用-厂牌检索
-
 var WidgetMetadata = {
     id: "labeiTao",
     title: "厂牌检索",
