@@ -1,11 +1,10 @@
-// 电视直播插件
 WidgetMetadata = {
-    id: "live",
-    title: "直播(电视+网络)",
+    id: "liveTao",
+    title: "live源",
     detailCacheDuration: 60,
     modules: [
         {
-            title: "直播(电视+网络)",
+            title: "live源",
             requiresWebView: false,
             functionName: "loadLiveItems",
             cacheDuration: 21600,
