@@ -1,6 +1,4 @@
-// @name Hanime1
-// @description 标签、热榜、搜索
-// @version 1.4.0
+// @name 廿二日自用-hanime1
 
 var WidgetMetadata = {
     id: "hanime1Tao",
