@@ -1,12 +1,35 @@
 WidgetMetadata = {
     id: '91pornTao',
     title: '91Porn',
-    description: '91Porn网站聚合',
-    version: "1.2.0",
+    description: '91Porn网址聚合',
+    version: "1.0.3",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://91porn.com',
     detailCacheDuration: 1,
+    search: {
+        title: "搜索",
+        functionName: "searchVideos",
+        params: [
+            {
+                name: "keyword",
+                title: "搜索关键词",
+                type: "input",
+                description: "输入你想搜索的视频内容",
+                placeholders: [
+                    { title: "制服", value: "制服" },
+                    { title: "自拍", value: "自拍" },
+                    { title: "少妇", value: "少妇" }
+                ]
+            },
+            {
+                name: 'base_url',
+                title: "基础 URL",
+                type: 'input',
+                value: 'https://91porn.com'
+            }
+        ]
+    },
     modules: [
         {
             id: '91porn.list',
@@ -32,6 +55,7 @@ WidgetMetadata = {
                         { value: 'ori', title: "91原创" },
                         { value: 'long', title: "10分钟以上" },
                         { value: 'longer', title: "20分钟以上" },
+                        { value: 'hd', title: "高清" },
                         { value: 'mf', title: "收藏最多" }
                     ]
                 },
@@ -56,7 +80,7 @@ const DEFAULT_BASE_URL = 'https://91porn.com';
 
 const getHeaders = () => ({
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'Accept-Language': 'zh-CN,zh;q=0.9,zh-TW;q=0.8,en;q=0.7',
     'Cache-Control': 'no-cache',
     'Pragma': 'no-cache',
     'Sec-Fetch-Dest': 'document',
@@ -66,6 +90,48 @@ const getHeaders = () => ({
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
 });
 
+// 提取抽象的视频列表解析引擎
+function parseVideoList($) {
+    const list = [];
+    $('.videos-text-align').each((_, el) => {
+        const $el = $(el);
+        // 规避蜜罐
+        if ($el.closest('.col-lg-8').length > 0) return;
+
+        const link = $el.find('a').attr('href');
+        if (!link) return;
+
+        const backdropPath = $el.find('.img-responsive').attr('src');
+        const title = $el.find('.video-title').text().trim();
+        const durationText = $el.find('.duration').text().trim();
+        
+        const result = {
+            id: link,
+            type: 'url',
+            mediaType: 'movie',
+            link,
+            title,
+            backdropPath,
+            durationText: durationText || undefined
+        };
+
+        const videoID = backdropPath?.split('/').pop()?.split('.').shift();
+        if (videoID) {
+            result.previewUrl = `https://vthumb.killcovid2021.com/thumb/${videoID}.mp4`;
+        }
+
+        const infoTexts = $el.find('.info').text();
+        const timeMatch = infoTexts.match(/添加时间:\s*([\d-]+\s[\d:]+)/);
+        if (timeMatch && timeMatch[1]) {
+            result.releaseDate = timeMatch[1].trim();
+        }
+
+        list.push(result);
+    });
+    return list;
+}
+
+// 核心业务：获取分类列表
 async function getList(params) {
     const sortBy = params?.sort_by ?? 'ori';
     const page = params?.page ?? 1;
@@ -80,51 +146,37 @@ async function getList(params) {
             throw new Error(`请求失败: HTTP ${resp?.statusCode || '未知'}`);
         }
 
-        const $ = Widget.html.load(resp.data);
-        const list = [];
-
-        $('.videos-text-align').each((_, el) => {
-            const $el = $(el);
-            if ($el.closest('.col-lg-8').length > 0) return;
-
-            const link = $el.find('a').attr('href');
-            if (!link) return;
-
-            const backdropPath = $el.find('.img-responsive').attr('src');
-            const title = $el.find('.video-title').text().trim();
-            const durationText = $el.find('.duration').text().trim();
-            
-            const result = {
-                id: link,
-                type: 'url',
-                mediaType: 'movie',
-                link,
-                title,
-                backdropPath,
-                durationText: durationText || undefined
-            };
-
-            const videoID = backdropPath?.split('/').pop()?.split('.').shift();
-            if (videoID) {
-                result.previewUrl = `https://vthumb.killcovid2021.com/thumb/${videoID}.mp4`;
-            }
-
-            const infoTexts = $el.find('.info').text();
-            const timeMatch = infoTexts.match(/添加时间:\s*([\d-]+\s[\d:]+)/);
-            if (timeMatch && timeMatch[1]) {
-                result.releaseDate = timeMatch[1].trim();
-            }
-
-            list.push(result);
-        });
-
-        return list;
+        return parseVideoList(Widget.html.load(resp.data));
     } catch (error) {
         console.error("[91Porn] 视频列表加载失败:", error);
         return [];
     }
 }
 
+// 核心业务：搜索视频
+async function searchVideos(params = {}) {
+    const keyword = (params.keyword || params.query || "").trim();
+    if (!keyword) throw new Error("请输入搜索描述");
+
+    const baseUrl = params?.base_url ?? DEFAULT_BASE_URL;
+    
+    try {
+        const resp = await Widget.http.get(`${baseUrl}/search_result.php?search_id=${encodeURIComponent(keyword)}`, {
+            headers: getHeaders()
+        });
+
+        if (!resp || resp.statusCode !== 200) {
+            throw new Error(`搜索请求失败: HTTP ${resp?.statusCode || '未知'}`);
+        }
+
+        return parseVideoList(Widget.html.load(resp.data));
+    } catch (error) {
+        console.error("[91Porn] 视频搜索失败:", error);
+        return [];
+    }
+}
+
+// 核心业务：加载详情直链
 async function loadDetail(url) {
     try {
         const resp = await Widget.http.get(url, {
