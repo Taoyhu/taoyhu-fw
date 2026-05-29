@@ -2,11 +2,11 @@
 
 WidgetMetadata = {
     id: "liveTao",
-    title: "live源",
+    title: "直播源",
     detailCacheDuration: 60,
     modules: [
         {
-            title: "live源",
+            title: "直播源",
             requiresWebView: false,
             functionName: "loadLiveItems",
             cacheDuration: 21600,
@@ -214,11 +214,10 @@ WidgetMetadata = {
             ],
         },
     ],
-    version: "1.0.11",
+    version: "2.1",
     requiredVersion: "0.0.1",
     description: "解析直播订阅链接",
     author: "廿二日",
-    site: "https://github.com/huangxd-/ForwardWidgets"
 };
 
 
