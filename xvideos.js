@@ -71,9 +71,9 @@ function parseVideoList($) {
 }
 
 WidgetMetadata = {
-    id: 'XVideos',
+    id: 'XVideosTao',
     title: 'XVideos',
-    description: 'XVideos 视频资源浏览模块，支持最新、热门、分类、标签、频道和明星筛选',
+    description: 'xvideos视频资源浏览模块,
     version: "1.0.1",
     requiredVersion: '0.0.1',
     author: "廿二日",
