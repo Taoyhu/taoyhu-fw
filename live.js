@@ -1,3 +1,5 @@
+// @name 廿二日自用
+
 WidgetMetadata = {
     id: "liveTao",
     title: "live源",
