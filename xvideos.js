@@ -74,7 +74,7 @@ WidgetMetadata = {
     id: 'xvideosTao',
     title: 'xvideos',
     description: 'xvideos视频资源浏览模块',
-    version: "1.0.2",
+    version: "1.0.3",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://www.xvideos.com',
@@ -662,4 +662,22 @@ async function loadDetail(url) {
         } catch (e) {}
     }
     return result;
+}
+
+WidgetMetadata.search = {
+    title: "快捷搜索",
+    functionName: "searchVideos",
+    params: [
+        { name: "keyword", title: "搜索关键词", type: "input", description: "输入关键词", value: "" },
+        { name: "page", title: "页码", type: "page", description: "页码", value: "0" }
+    ]
+};
+
+async function searchVideos(params) {
+    const page = params.page ? parseInt(params.page) : 0;
+    const keyword = encodeURIComponent(params.keyword || "");
+    if (!keyword) return [];
+    
+    const url = `${BASE_URL}/?k=${keyword}${page > 0 ? `&p=${page}` : ''}`;
+    return parseVideoList(await fetchHtml(url));
 }
