@@ -239,7 +239,7 @@ WidgetMetadata = {
             ]
         },
         {
-            title: "🔍 搜索视频",
+            title: "搜索",
             functionName: "searchList",
             type: "video",
             params: [
