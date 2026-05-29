@@ -1,6 +1,4 @@
-// @name 厂牌检索
-// @description TMDB厂牌与平台库
-// @version 2.1.0
+// @name 廿二日自用-厂牌检索
 
 var WidgetMetadata = {
     id: "labeiTao",
