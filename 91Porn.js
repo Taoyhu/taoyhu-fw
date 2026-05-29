@@ -5,7 +5,7 @@ WidgetMetadata = {
     version: "2.1.0",
     requiredVersion: '0.0.1',
     author: "廿二日",
-    site: 'https://github.com/baranwang/forward-widget',
+    site: 'https://91porn.com',
     detailCacheDuration: 1,
     detail: {
         functionName: 'loadDetail'
