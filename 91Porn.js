@@ -2,7 +2,7 @@ WidgetMetadata = {
     id: '91pornTao',
     title: '91Porn',
     description: '91Porn网站聚合',
-    version: "2.1",
+    version: "2.1.0",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://github.com/baranwang/forward-widget',
