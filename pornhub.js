@@ -5,11 +5,11 @@ const RESOLUTION_OPTIONS = [{title:"全部",value:""},{title:"仅高清",value:"
 const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",value:"views"},{title:"最高评分",value:"rating"}];
 
 WidgetMetadata = {
-    id: "PornhubTao",
+    id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.3",
+    version: "1.1.4",
     requiredVersion: "0.0.1",
-    description: "Pornhub网站聚合，账号登录",
+    description: "Pornhub网站聚合，账号认证",
     author: "廿二日",
     site: "https://cn.pornhub.com",
     detailCacheDuration: 60,
@@ -21,18 +21,8 @@ WidgetMetadata = {
         title: "Pornhub搜索",
         functionName: "searchVideos",
         params: [
-            {
-                name: "keyword",
-                title: "搜索关键词",
-                type: "input",
-                value: ""
-            },
-            {
-                name: "page",
-                title: "页码",
-                type: "page",
-                value: "1"
-            }
+            { name: "keyword", title: "搜索关键词", type: "input", value: "" },
+            { name: "page", title: "页码", type: "page", value: "1" }
         ]
     },
     modules: [
@@ -298,7 +288,7 @@ const extractAuthor = ($, element) => {
         || $el.find('.usernameBadgesWrapper a[title]').text().trim() || "";
 };
 
-const extractPreviewUrl = ($, element, viewkey) => {
+const extractPreviewUrl = ($, element) => {
     const $el = $(element);
     const cands = [];
     $el.find('img, source, video').addBack('img, source, video').each((_, node) => {
@@ -306,27 +296,7 @@ const extractPreviewUrl = ($, element, viewkey) => {
         cands.push($n.attr('src'), $n.attr('data-src'), $n.attr('data-webm'), $n.attr('data-preview'), $n.attr('poster'));
     });
     cands.push($el.attr('data-webm'), $el.attr('data-preview'), $el.attr('poster'));
-    return cands.map(url => url ? trimUrl(url) : "").find(url => url && !looksLikePlaceholderUrl(url)) || "";
-};
-
-const buildVideoItem = ($, element, viewkey, fallbackLink = "") => {
-    const $el = $(element);
-    const title = $el.attr('title') || $el.find('.title a[title]').attr('title') || $el.find('.title a').text().trim() || "未知标题";
-    let link = $el.attr('href') || $el.find('.title a').attr('href') || $el.find("a[href*='viewkey=']").attr('href') || fallbackLink || `https://cn.pornhub.com/view_video.php?viewkey=${viewkey}`;
-    if (!/^https?:\/\//.test(link)) link = link.startsWith('/') ? `${PH_BASE_URL}${link}` : `${PH_BASE_URL}/${link}`;
-
-    const listCoverUrl = extractListImageUrl($, element);
-    const detailCoverUrl = viewkey ? (COVER_CACHE[viewkey] || DETAIL_COVER_CACHE[viewkey]) : "";
-    const coverUrl = listCoverUrl || detailCoverUrl || "";
-    const previewUrl = coverUrl || detailCoverUrl || extractPreviewUrl($, element, viewkey);
-    
-    const durationText = $el.find('.duration, .videoDuration, [class*="duration"]').first().text().trim() || "未知时长";
-    const author = extractAuthor($, element);
-
-    return {
-        id: viewkey, type: "link", mediaType: "movie", title, coverUrl, previewUrl,
-        durationText, duration: 0, link, description: author ? `作者：${author}` : ""
-    };
+    return cands.map(url => trimUrl(url)).find(url => url && !looksLikePlaceholderUrl(url)) || "";
 };
 
 const extractListImageUrl = ($, element) => {
@@ -336,7 +306,27 @@ const extractListImageUrl = ($, element) => {
         const $n = $(node);
         cands.push($n.attr('src'), $n.attr('data-src'), $n.attr('data-thumb'), $n.attr('data-mediumthumb'));
     });
-    return cands.map(url => url ? trimUrl(url) : "").find(url => url && !looksLikePlaceholderUrl(url)) || "";
+    return cands.map(url => trimUrl(url)).find(url => url && !looksLikePlaceholderUrl(url)) || "";
+};
+
+const buildVideoItem = ($, element, viewkey, fallbackLink = "") => {
+    const $el = $(element);
+    const title = $el.attr('title') || $el.find('.title a[title]').attr('title') || $el.find('.title a').text().trim() || "未知标题";
+    let link = $el.attr('href') || $el.find('.title a').attr('href') || $el.find("a[href*='viewkey=']").attr('href') || fallbackLink || `${PH_BASE_URL}/view_video.php?viewkey=${viewkey}`;
+    if (!/^https?:\/\//.test(link)) link = link.startsWith('/') ? `${PH_BASE_URL}${link}` : `${PH_BASE_URL}/${link}`;
+
+    const listCoverUrl = extractListImageUrl($, element);
+    const detailCoverUrl = viewkey ? (COVER_CACHE[viewkey] || DETAIL_COVER_CACHE[viewkey]) : "";
+    const coverUrl = listCoverUrl || detailCoverUrl || "";
+    const previewUrl = coverUrl || detailCoverUrl || extractPreviewUrl($, element);
+    
+    const durationText = $el.find('.duration, .videoDuration, [class*="duration"]').first().text().trim() || "未知时长";
+    const author = extractAuthor($, element);
+
+    return {
+        id: viewkey, type: "link", mediaType: "movie", title, coverUrl, previewUrl,
+        durationText, duration: 0, link, description: author ? `作者：${author}` : ""
+    };
 };
 
 const extractDetailCoverFromHtml = (html, $root) => {
@@ -355,7 +345,7 @@ const fetchDetailCoverForViewkey = async (viewkey) => {
     if (!viewkey || DETAIL_COVER_CACHE[viewkey]) return DETAIL_COVER_CACHE[viewkey] || "";
     if (DETAIL_COVER_FAILED[viewkey] && (Date.now() - DETAIL_COVER_FAILED[viewkey]) < DETAIL_COVER_FAIL_TTL) return "";
     try {
-        const res = await Widget.http.get(`https://cn.pornhub.com/view_video.php?viewkey=${viewkey}`, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+        const res = await Widget.http.get(`${PH_BASE_URL}/view_video.php?viewkey=${viewkey}`, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
         const cover = extractDetailCoverFromHtml(res?.data || "");
         if (cover) {
             DETAIL_COVER_CACHE[viewkey] = cover;
@@ -379,25 +369,70 @@ const hydrateMissingCovers = async (items) => {
 };
 
 const extractM3u8FromHtml = html => {
-    try {
-        for (const pattern of [/"mediaDefinitions"\s*:\s*(\[.+?\])/s, /var\s+flashvars_\d+\s*=\s*({.+?});/s, /"sources"\s*:\s*(\[[\s\S]+?\])/i]) {
-            const match = html.match(pattern);
-            if (match) {
-                const parsed = JSON.parse(match[1].replace(/'/g, '"').replace(/,\s*]/g, ']'));
-                const list = (parsed.mediaDefinitions || parsed).filter(i => /hls|m3u8/i.test(i.format || i.type) || /\.m3u8/.test(i.videoUrl || i.url));
-                if (list.length) {
-                    list.sort((a, b) => (parseInt(b.quality || b.resolution || 0) - parseInt(a.quality || a.resolution || 0)));
-                    return {
-                        videoUrl: list[0].videoUrl || list[0].url,
-                        quality: String(list[0].quality || list[0].resolution || "").replace(/[^\d]/g, '') + 'p',
-                        formats: list.map(i => ({ url: i.videoUrl || i.url, format: String(i.quality || i.resolution || "").replace(/[^\d]/g, '') + 'p', ext: 'm3u8', type: 'hls' }))
-                    };
-                }
-            }
+    const normalizeVideoItems = items => (items || [])
+        .filter(item => item?.videoUrl || item?.url)
+        .map(item => ({
+            url: item.videoUrl || item.url || "",
+            quality: item.quality || item.resolution || item.label || "",
+            format: item.format || item.type || ""
+        }))
+        .filter(item => !!item.url);
+
+    const pickBestHls = items => {
+        const hlsItems = items.filter(item => /hls|m3u8/i.test(item.format) || /\.m3u8(\?|$)/i.test(item.url));
+        if (!hlsItems.length) return null;
+        hlsItems.sort((a, b) => (parseInt(b.quality, 10) || 0) - (parseInt(a.quality, 10) || 0));
+        return {
+            videoUrl: hlsItems[0].url,
+            quality: String(hlsItems[0].quality || "").replace(/[^\d]/g, '') + 'p',
+            formats: hlsItems.map(item => ({
+                url: item.url,
+                format: String(item.quality || "").replace(/[^\d]/g, '') + 'p',
+                ext: 'm3u8',
+                type: 'hls'
+            }))
+        };
+    };
+
+    const tryParse = str => {
+        try { return JSON.parse(str); } catch { return null; }
+    };
+
+    const tryParseRelaxed = str => {
+        try { return JSON.parse(str.replace(/'/g, '"').replace(/,\s*]/g, ']')); } catch { return null; }
+    };
+
+    let picked = null;
+
+    const mediaMatch = html.match(/"mediaDefinitions"\s*:\s*(\[.+?\])/s);
+    if (mediaMatch) picked = pickBestHls(normalizeVideoItems(tryParse(mediaMatch[1]) || tryParseRelaxed(mediaMatch[1])));
+    if (picked) return picked;
+
+    const flashvarsMatch = html.match(/var\s+flashvars_\d+\s*=\s*({.+?});/s);
+    if (flashvarsMatch) {
+        const flashvars = tryParse(flashvarsMatch[1]) || tryParseRelaxed(flashvarsMatch[1]);
+        picked = pickBestHls(normalizeVideoItems(flashvars?.mediaDefinitions));
+        if (picked) return picked;
+    }
+
+    const sourcesMatch = html.match(/"sources"\s*:\s*(\[[\s\S]+?\])/i);
+    if (sourcesMatch) picked = pickBestHls(normalizeVideoItems(tryParse(sourcesMatch[1]) || tryParseRelaxed(sourcesMatch[1])));
+    if (picked) return picked;
+
+    const directUrlPatterns = [
+        /https?:\/\/[^\"'\s]+\.m3u8(?:\?[^\"'\s]*)?/i,
+        /videoUrl\s*[:=]\s*["']([^"']+\.m3u8(?:\?[^"']*)?)["']/i,
+        /source\s*[:=]\s*["']([^"']+\.m3u8(?:\?[^"']*)?)["']/i
+    ];
+    
+    for (const pattern of directUrlPatterns) {
+        const directMatch = html.match(pattern);
+        if (directMatch) {
+            const url = (directMatch[1] || directMatch[0])?.replace(/&amp;/g, '&');
+            if (url) return { videoUrl: url, quality: '', formats: [{ url, format: '', ext: 'm3u8', type: 'hls' }] };
         }
-        const directMatch = html.match(/https?:\/\/[^\"'\s]+\.m3u8(?:\?[^\"'\s]*)?/i);
-        if (directMatch) return { videoUrl: directMatch[0], quality: '', formats: [{ url: directMatch[0], format: '', ext: 'm3u8', type: 'hls' }] };
-    } catch {}
+    }
+
     return null;
 };
 
@@ -409,7 +444,7 @@ async function getSearchResults(params) {
         page: Math.max(1, Number(params.page) || 1) > 1 ? params.page : ''
     });
     
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     const $ = Widget.html.load(res?.data || "");
     const items = [];
     $(VIDEO_ITEM_SELECTOR).each((_, el) => {
@@ -432,7 +467,7 @@ async function getFavorites(params) {
         page: Math.max(1, Number(params.page) || 1) > 1 ? params.page : ''
     });
 
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     if (!res || !res.data) throw new Error("获取失败");
     if (res.data.includes("没有收藏视频") || res.data.includes("No videos found")) return [];
 
@@ -457,7 +492,7 @@ async function getUserUploads(params) {
               : type === 'channels' ? buildUrl(`/channels/${username}/videos`, { o: sortStr, page: page > 1 ? page : '' })
               : buildUrl(`/model/${username}/videos`, { o: sortStr, page: page > 1 ? page : '' });
 
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     const $ = Widget.html.load(res?.data || "");
     const items = [];
     
@@ -475,7 +510,7 @@ async function getRecommendedVideos(params) {
     const cookieStr = rawCookie.split(";").map(s => s.trim()).filter(s => s.includes("=") && !/undefined/i.test(s)).join("; ");
     const url = buildUrl('/recommended', { o: params.sort_by || '', page: page > 1 ? page : '' });
     
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Cookie": cookieStr, "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Cookie": cookieStr, "Referer": `${PH_BASE_URL}/` }) });
     const html = res?.data || "";
     if (!html.includes('class="logged-in"') && !html.includes("isLogged = 1") && !html.includes("topProfileMenu")) throw new Error("未登录或 Cookie 已失效，请在全局参数中更新 Cookie");
     
@@ -494,7 +529,7 @@ async function getVideosByLanguage(params) {
         page: page > 1 ? page : '', p: params.p || '', hd: params.hd || '', o: params.sort_by || ''
     });
     
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     const $ = Widget.html.load(res?.data || "");
     const items = [];
     $(VIDEO_ITEM_SELECTOR).each((_, el) => {
@@ -519,7 +554,7 @@ async function getVideos(params) {
     const base = c === "teen" ? "/categories/teen" : "/video";
     const url = buildUrl(base, qs);
     
-    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     const $ = Widget.html.load(res?.data || "");
     const items = [];
     $(VIDEO_ITEM_SELECTOR).each((_, el) => {
@@ -533,8 +568,8 @@ async function loadDetail(link) {
     const viewkey = link.match(/viewkey=([^&]+)/)?.[1];
     if (!viewkey) throw new Error("无效的视频链接");
 
-    const fullUrl = `https://cn.pornhub.com/view_video.php?viewkey=${viewkey}`;
-    const res = await Widget.http.get(fullUrl, { headers: createDefaultHeaders({ "Referer": "https://cn.pornhub.com/" }) });
+    const fullUrl = `${PH_BASE_URL}/view_video.php?viewkey=${viewkey}`;
+    const res = await Widget.http.get(fullUrl, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
     const html = res?.data || "";
     const $ = Widget.html.load(html);
 
