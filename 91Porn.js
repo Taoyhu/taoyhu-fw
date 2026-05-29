@@ -2,14 +2,11 @@ WidgetMetadata = {
     id: '91pornTao',
     title: '91Porn',
     description: '91Porn网站聚合',
-    version: "2.1.0",
+    version: "1.2.0",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://91porn.com',
     detailCacheDuration: 1,
-    detail: {
-        functionName: 'loadDetail'
-    },
     modules: [
         {
             id: '91porn.list',
@@ -33,9 +30,8 @@ WidgetMetadata = {
                         { value: 'md', title: "本月讨论" },
                         { value: 'top&m=-1', title: "上月最热" },
                         { value: 'ori', title: "91原创" },
-                        { value: 'long', title: "10分钟以上 " },
-                        { value: 'longer', title: "20分钟以上 " },
-                        { value: 'hd', title: "高清" },
+                        { value: 'long', title: "10分钟以上" },
+                        { value: 'longer', title: "20分钟以上" },
                         { value: 'mf', title: "收藏最多" }
                     ]
                 },
@@ -56,142 +52,152 @@ WidgetMetadata = {
     ]
 };
 
-const DEFAULT_HEADERS = {
-    'Accept-Language': 'zh-CN,zh;q=0.9,zh-TW;q=0.8,en;q=0.7'
-};
-
-class WidgetAPI {
-    constructor(getDefaultOptions) {
-        this.getDefaultOptions = getDefaultOptions;
-    }
-
-    async get(url, options) {
-        let baseOptions = { headers: DEFAULT_HEADERS };
-        if (this.getDefaultOptions) {
-            try {
-                const defaultOptions = await this.getDefaultOptions();
-                baseOptions = { 
-                    ...baseOptions, 
-                    ...defaultOptions, 
-                    headers: { ...baseOptions.headers, ...defaultOptions?.headers } 
-                };
-            } catch (error) {
-                console.warn("获取默认配置失败，使用基础配置:", error);
-            }
-        }
-        
-        const finalOptions = { 
-            ...baseOptions, 
-            ...options, 
-            headers: { ...baseOptions.headers, ...options?.headers } 
-        };
-
-        try {
-            const resp = await Widget.http.get(url, finalOptions);
-            if (!resp || resp.statusCode !== 200) throw new Error(`HTTP Error: ${resp?.statusCode || "Unknown"}`);
-            return resp.data;
-        } catch (error) {
-            throw new Error(`请求失败: ${error instanceof Error ? error.message : "未知错误"}`);
-        }
-    }
-
-    async getHtml(url, options) {
-        const resp = await this.get(url, options);
-        return Widget.html.load(resp);
-    }
-}
-
 const DEFAULT_BASE_URL = 'https://91porn.com';
-const widgetAPI = new WidgetAPI();
+
+const getHeaders = () => ({
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'same-origin',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+});
 
 async function getList(params) {
-    params.sort_by = params.sort_by || 'ori';
-    params.page = params.page || 1;
-    params.base_url = params.base_url || DEFAULT_BASE_URL;
-    
+    const sortBy = params?.sort_by ?? 'ori';
+    const page = params?.page ?? 1;
+    const baseUrl = params?.base_url ?? DEFAULT_BASE_URL;
+
     try {
-        const $ = await widgetAPI.getHtml(`${params.base_url}/v.php?category=${params.sort_by}&viewtype=basic&page=${params.page}`);
-        const list = Array.from($('.videos-text-align')).map((el) => {
+        const resp = await Widget.http.get(`${baseUrl}/v.php?category=${sortBy}&viewtype=basic&page=${page}`, {
+            headers: getHeaders()
+        });
+
+        if (!resp || resp.statusCode !== 200) {
+            throw new Error(`请求失败: HTTP ${resp?.statusCode || '未知'}`);
+        }
+
+        const $ = Widget.html.load(resp.data);
+        const list = [];
+
+        $('.videos-text-align').each((_, el) => {
             const $el = $(el);
-            if ($el.closest('.col-lg-8').length > 0) return null;
-            
+            if ($el.closest('.col-lg-8').length > 0) return;
+
             const link = $el.find('a').attr('href');
-            if (!link) return null;
-            
+            if (!link) return;
+
             const backdropPath = $el.find('.img-responsive').attr('src');
+            const title = $el.find('.video-title').text().trim();
+            const durationText = $el.find('.duration').text().trim();
+            
             const result = {
                 id: link,
-                type: 'detail',
+                type: 'url',
                 mediaType: 'movie',
                 link,
-                title: $el.find('.video-title').text().trim(),
+                title,
                 backdropPath,
-                durationText: $el.find('.duration').text().trim() || undefined
+                durationText: durationText || undefined
             };
 
             const videoID = backdropPath?.split('/').pop()?.split('.').shift();
-            if (videoID) result.previewUrl = `https://vthumb.killcovid2021.com/thumb/${videoID}.mp4`;
+            if (videoID) {
+                result.previewUrl = `https://vthumb.killcovid2021.com/thumb/${videoID}.mp4`;
+            }
 
-            const addTimeEl = $el.find('.info').filter((_, e) => $(e).text().includes("添加时间"));
-            const nextSibling = addTimeEl[0]?.nextSibling;
-            if (nextSibling?.textContent) result.releaseDate = nextSibling.textContent.trim();
+            const infoTexts = $el.find('.info').text();
+            const timeMatch = infoTexts.match(/添加时间:\s*([\d-]+\s[\d:]+)/);
+            if (timeMatch && timeMatch[1]) {
+                result.releaseDate = timeMatch[1].trim();
+            }
 
-            return result;
+            list.push(result);
         });
-        
-        return list.filter(Boolean);
+
+        return list;
     } catch (error) {
-        console.error("视频列表加载失败", error);
+        console.error("[91Porn] 视频列表加载失败:", error);
         return [];
     }
 }
 
 async function loadDetail(url) {
     try {
-        const $ = await widgetAPI.getHtml(url);
-        const player = $('#player_one');
-        const script = player.find("script").text();
-        const strencodeMatch = script.match(/strencode2\("(.*?)"\)/);
-        
-        const sourceHtml = decodeURIComponent(strencodeMatch?.[1] || '');
-        const $source = Widget.html.load(sourceHtml);
-        const videoUrl = $source('source').attr('src');
-        if (!videoUrl) throw new Error("未找到视频资源");
+        const resp = await Widget.http.get(url, {
+            headers: getHeaders()
+        });
 
+        if (!resp || resp.statusCode !== 200) {
+            throw new Error(`请求失败: HTTP ${resp?.statusCode || '未知'}`);
+        }
+
+        const $ = Widget.html.load(resp.data);
+        const htmlContent = resp.data;
+        
+        let videoUrl = '';
+        const match = htmlContent.match(/strencode2\("([^"]+)"\)/);
+        
+        if (match && match[1]) {
+            try {
+                const decodedScript = decodeURIComponent(match[1]);
+                const sourceMatch = decodedScript.match(/src='([^']+)'/);
+                if (sourceMatch && sourceMatch[1]) {
+                    videoUrl = sourceMatch[1];
+                }
+            } catch (e) {
+                console.error("解密视频源失败:", e);
+            }
+        }
+
+        if (!videoUrl) {
+            throw new Error("未找到视频资源");
+        }
+
+        const player = $('#player_one');
         const result = {
             id: url,
             type: 'detail',
             mediaType: 'movie',
             link: url,
             title: $('#videodetails h4').first().text().trim(),
-            backdropPath: player.attr('poster'),
-            videoUrl,
-            releaseDate: $('.title-yakov').eq(0).text() || undefined,
-            description: Widget.html.load($('#v_desc').html()?.replace(/<br\s*\/?>/g, '\n') || '').text() || undefined
+            backdropPath: player.attr('poster') || '',
+            videoUrl
         };
 
-        const duration = $('#useraction').find('.info').filter((_, el) => $(el).text().includes("时长")).find('.video-info-span').text().trim();
+        const duration = $('#useraction .info:contains("时长") .video-info-span').text().trim();
         if (duration) result.durationText = duration;
 
-        result.childItems = Array.from($('.well')).map((el) => {
+        const releaseDate = $('.title-yakov').first().text().trim();
+        if (releaseDate) result.releaseDate = releaseDate;
+
+        const rawDesc = $('#v_desc').html()?.replace(/<br\s*\/?>/gi, '\n') || '';
+        const description = Widget.html.load(rawDesc).text().trim();
+        if (description) result.description = description;
+
+        result.childItems = [];
+        $('.well').each((_, el) => {
             const $el = $(el);
             const link = $el.find('a').attr('href');
-            if (!link) return null;
-            
-            return {
+            if (!link) return;
+
+            result.childItems.push({
                 id: link,
-                type: 'detail',
+                type: 'url',
                 mediaType: 'movie',
-                link: link,
+                link,
                 title: $el.find('.video-title').text().trim(),
                 durationText: $el.find('.duration').text().trim(),
                 backdropPath: $el.find('.img-responsive').attr('src')
-            };
-        }).filter(Boolean);
+            });
+        });
 
         return result;
     } catch (error) {
-        console.error("视频详情加载失败", error);
+        console.error("[91Porn] 视频详情加载失败:", error);
         return null;
     }
 }
