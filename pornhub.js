@@ -5,18 +5,18 @@ const RESOLUTION_OPTIONS = [{title:"全部",value:""},{title:"仅高清",value:"
 const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",value:"views"},{title:"最高评分",value:"rating"}];
 
 WidgetMetadata = {
-    id: "Pornhub_int",
-    title: "Pornhub",
-    version: "1.3.1",
+    id: "pornhubTao",
+    title: "pornhub",
+    version: "1.1.1",
     requiredVersion: "0.0.1",
-    description: "Pornhub 视频聚合模块",
+    description: "Pornhub网站聚合",
     author: "廿二日",
     site: "https://cn.pornhub.com",
     detailCacheDuration: 60,
     modules: [
         {
             id: "searchKeyword",
-            title: "🔍 全站搜索",
+            title: "全站搜索",
             functionName: "getSearchResults",
             cacheDuration: 86400,
             params: [
@@ -28,7 +28,7 @@ WidgetMetadata = {
         },
         {
             id: "favorites",
-            title: "❤️ 我的最爱",
+            title: "我的最爱",
             functionName: "getFavorites",
             cacheDuration: 180,
             params: [
@@ -39,7 +39,7 @@ WidgetMetadata = {
         },
         {
             id: "searchUser",
-            title: "🌟 优选艺人",
+            title: "优选艺人",
             functionName: "getUserUploads",
             cacheDuration: 86400,
             params: [
@@ -72,7 +72,7 @@ WidgetMetadata = {
         },
         {
             id: "premiumArtists",
-            title: "👠 搜索艺人",
+            title: "搜索艺人",
             functionName: "getUserUploads",
             cacheDuration: 300,
             params: [
@@ -85,7 +85,7 @@ WidgetMetadata = {
         },
         {
             id: "recommended",
-            title: "🎬 推荐视频",
+            title: "推荐视频",
             functionName: "getRecommendedVideos",
             cacheDuration: 86400,
             params: [
@@ -96,7 +96,7 @@ WidgetMetadata = {
         },
         {
             id: "languageVideos",
-            title: "🌐 语言筛选",
+            title: "语言筛选",
             functionName: "getVideosByLanguage",
             cacheDuration: 86400,
             params: [
@@ -109,7 +109,7 @@ WidgetMetadata = {
         },
         {
             id: "hotVideos",
-            title: "🔥 热播视频",
+            title: "热播视频",
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
@@ -124,7 +124,7 @@ WidgetMetadata = {
         },
         {
             id: "topViews",
-            title: "👀 最多观看",
+            title: "最多观看",
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
@@ -139,7 +139,7 @@ WidgetMetadata = {
         },
         {
             id: "maxRating",
-            title: "🏆 最高评分",
+            title: "最高评分",
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
@@ -153,7 +153,7 @@ WidgetMetadata = {
         },
         {
             id: "latestFeatured",
-            title: "💎 最新精选",
+            title: "最新精选",
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
@@ -165,7 +165,7 @@ WidgetMetadata = {
         },
         {
             id: "newVideos",
-            title: "🆕 最新视频",
+            title: "最新视频",
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
