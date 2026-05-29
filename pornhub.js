@@ -5,7 +5,7 @@ const RESOLUTION_OPTIONS = [{title:"全部",value:""},{title:"仅高清",value:"
 const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",value:"views"},{title:"最高评分",value:"rating"}];
 
 WidgetMetadata = {
-    id: "pornhubTao",
+    id: "PornhubTao",
     title: "pornhub",
     version: "1.1.3",
     requiredVersion: "0.0.1",
