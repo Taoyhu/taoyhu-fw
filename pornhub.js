@@ -7,12 +7,34 @@ const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",val
 WidgetMetadata = {
     id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.1",
+    version: "1.1.2",
     requiredVersion: "0.0.1",
-    description: "Pornhub网站聚合",
+    description: "Pornhub网站聚合，支持全局搜索与统一身份认证",
     author: "廿二日",
     site: "https://cn.pornhub.com",
     detailCacheDuration: 60,
+    globalParams: [
+        { name: "cookie", title: "全局登录Cookie", type: "input", description: "用于获取推荐视频等私有数据", value: "" },
+        { name: "username", title: "全局用户名", type: "input", description: "用于获取我的最爱等用户数据，示例：watchadog", value: "" }
+    ],
+    search: {
+        title: "Pornhub搜索",
+        functionName: "searchVideos",
+        params: [
+            {
+                name: "keyword",
+                title: "搜索关键词",
+                type: "input",
+                value: ""
+            },
+            {
+                name: "page",
+                title: "页码",
+                type: "page",
+                value: "1"
+            }
+        ]
+    },
     modules: [
         {
             id: "searchKeyword",
@@ -32,7 +54,6 @@ WidgetMetadata = {
             functionName: "getFavorites",
             cacheDuration: 180,
             params: [
-                { name: "username", title: "用户名", type: "input", value: "", placeholders: [{title:"示例用户",value:"watchadog"}] },
                 { name: "sort_by", title: "排序方式", type: "enumeration", value: "new", enumOptions: SORT_BASIC },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
@@ -89,7 +110,6 @@ WidgetMetadata = {
             functionName: "getRecommendedVideos",
             cacheDuration: 86400,
             params: [
-                { name: "cookie", title: "登录Cookie", type: "input", value: "" },
                 { name: "sort_by", title: "推荐逻辑", type: "enumeration", value: "", enumOptions: [{title:"最相关",value:""},{title:"最新",value:"time"}] },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
@@ -382,8 +402,9 @@ const extractM3u8FromHtml = html => {
 };
 
 async function getSearchResults(params) {
+    const query = params.keyword || params.search_query;
     const url = buildUrl('/video/search', {
-        search: normalizeText(params.search_query).replace(/[\s\-]+/g, ' '),
+        search: normalizeText(query).replace(/[\s\-]+/g, ' '),
         o: params.sort_by === 'new' ? 'mr' : params.sort_by === 'views' ? 'mv' : params.sort_by === 'rating' ? 'tr' : '',
         page: Math.max(1, Number(params.page) || 1) > 1 ? params.page : ''
     });
@@ -397,7 +418,7 @@ async function getSearchResults(params) {
         
         const title = normalizeText($(el).find(".title a").attr("title") || $(el).find(".title").text() || $(el).attr('title'));
         const author = extractAuthor($, el);
-        if (params.search_type === 'yes' && !title.toLowerCase().includes(params.search_query.toLowerCase()) && !author.toLowerCase().includes(params.search_query.toLowerCase())) return;
+        if (params.search_type === 'yes' && query && !title.toLowerCase().includes(query.toLowerCase()) && !author.toLowerCase().includes(query.toLowerCase())) return;
         
         items.push(buildVideoItem($, el, vkey));
     });
@@ -405,7 +426,7 @@ async function getSearchResults(params) {
 }
 
 async function getFavorites(params) {
-    if (!params.username) throw new Error("请提供用户名");
+    if (!params.username) throw new Error("请在全局参数中填写您的用户名");
     let url = buildUrl(`/users/${encodeURIComponent(params.username)}/videos/favorites`, {
         o: params.sort_by === 'views' ? 'mv' : params.sort_by === 'rating' ? 'tr' : '',
         page: Math.max(1, Number(params.page) || 1) > 1 ? params.page : ''
@@ -456,7 +477,7 @@ async function getRecommendedVideos(params) {
     
     const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Cookie": cookieStr, "Referer": "https://cn.pornhub.com/" }) });
     const html = res?.data || "";
-    if (!html.includes('class="logged-in"') && !html.includes("isLogged = 1") && !html.includes("topProfileMenu")) throw new Error("未登录或 Cookie 已失效");
+    if (!html.includes('class="logged-in"') && !html.includes("isLogged = 1") && !html.includes("topProfileMenu")) throw new Error("未登录或 Cookie 已失效，请在全局参数中更新 Cookie");
     
     const $ = Widget.html.load(html);
     const items = [];
