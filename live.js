@@ -1,4 +1,4 @@
-// @name 廿二日自用
+// @name 廿二日自用-live
 
 WidgetMetadata = {
     id: "liveTao",
