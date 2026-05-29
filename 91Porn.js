@@ -1,14 +1,14 @@
 WidgetMetadata = {
     id: '91pornTao',
     title: '91Porn',
-    description: '91Porn网址聚合',
-    version: "1.0.3",
+    description: '91Porn网站聚合',
+    version: "1.0.4",
     requiredVersion: '0.0.1',
     author: "廿二日",
-    site: 'https://91porn.com',
+    site: 'https://github.com/baranwang/forward-widget',
     detailCacheDuration: 1,
     search: {
-        title: "搜索",
+        title: "搜索视频",
         functionName: "searchVideos",
         params: [
             {
@@ -55,7 +55,23 @@ WidgetMetadata = {
                         { value: 'ori', title: "91原创" },
                         { value: 'long', title: "10分钟以上" },
                         { value: 'longer', title: "20分钟以上" },
-                        { value: 'mf', title: "收藏最多" }
+                        { value: 'mf', title: "收藏最多" },
+                        { value: 'search', title: "搜索" } // 新增搜索分类
+                    ]
+                },
+                {
+                    name: "keyword",
+                    title: "搜索关键词",
+                    type: "input",
+                    belongTo: {
+                        paramName: "sort_by",
+                        value: ["search"]
+                    },
+                    description: "当分类选择为【搜索】时生效",
+                    placeholders: [
+                        { title: "制服", value: "制服" },
+                        { title: "自拍", value: "自拍" },
+                        { title: "少妇", value: "少妇" }
                     ]
                 },
                 {
@@ -130,13 +146,19 @@ function parseVideoList($) {
     return list;
 }
 
-// 核心业务：获取分类列表
+// 核心业务：获取分类列表 (支持内部搜索)
 async function getList(params) {
     const sortBy = params?.sort_by ?? 'ori';
     const page = params?.page ?? 1;
     const baseUrl = params?.base_url ?? DEFAULT_BASE_URL;
 
     try {
+        // 如果选择的是“搜索”分类，且输入了关键词，则分流到搜索接口
+        if (sortBy === 'search' && params?.keyword) {
+            return await searchVideos({ ...params, query: params.keyword });
+        }
+
+        // 否则走常规的分类列表接口
         const resp = await Widget.http.get(`${baseUrl}/v.php?category=${sortBy}&viewtype=basic&page=${page}`, {
             headers: getHeaders()
         });
@@ -152,7 +174,7 @@ async function getList(params) {
     }
 }
 
-// 核心业务：搜索视频
+// 核心业务：搜索视频 (全局与局部共用)
 async function searchVideos(params = {}) {
     const keyword = (params.keyword || params.query || "").trim();
     if (!keyword) throw new Error("请输入搜索描述");
