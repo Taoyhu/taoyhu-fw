@@ -1,5 +1,3 @@
-// @name 廿二日自用-oulevod
-
 var WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
