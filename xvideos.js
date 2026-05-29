@@ -74,7 +74,7 @@ WidgetMetadata = {
     id: 'xvideosTao',
     title: 'xvideos',
     description: 'xvideos视频资源浏览模块',
-    version: "1.0.3",
+    version: "1.1.0",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://www.xvideos.com',
@@ -101,7 +101,7 @@ WidgetMetadata = {
             functionName: 'getBestList',
             params: [
                 {
-                    name: 'mode',
+                    name: 'sort_by',
                     title: "类型",
                     type: 'enumeration',
                     value: 'free',
@@ -287,7 +287,7 @@ WidgetMetadata = {
             functionName: 'getCategoryList',
             params: [
                 {
-                    name: 'category',
+                    name: 'sort_by',
                     title: "分类",
                     type: 'enumeration',
                     value: 'lang/chinese',
@@ -346,7 +346,7 @@ WidgetMetadata = {
             functionName: 'getTagList',
             params: [
                 {
-                    name: 'tag',
+                    name: 'sort_by',
                     title: "标签",
                     type: 'enumeration',
                     value: 'amateur',
@@ -414,7 +414,7 @@ WidgetMetadata = {
             functionName: 'getChannelList',
             params: [
                 {
-                    name: 'channel',
+                    name: 'sort_by',
                     title: "频道",
                     type: 'enumeration',
                     value: 'asiam',
@@ -500,7 +500,7 @@ WidgetMetadata = {
             functionName: 'getPornstarsList',
             params: [
                 {
-                    name: 'pornstar',
+                    name: 'sort_by',
                     title: "色情明星",
                     type: 'enumeration',
                     value: 'su-chang-model',
@@ -578,7 +578,7 @@ async function getBestArchive() {
 async function getBestList(params) {
     const page = params.page ? parseInt(params.page) : 0;
     const archive = params.archive || '';
-    const mode = (params.mode || 'free').toLowerCase();
+    const mode = (params.sort_by || params.mode || 'free').toLowerCase();
     let url = `${BASE_URL}/best`;
     
     if (archive) {
@@ -603,7 +603,7 @@ async function getBestList(params) {
 
 async function getCategoryList(params) {
     const page = params.page ? parseInt(params.page) : 0;
-    const categoryPath = params.category || '';
+    const categoryPath = params.sort_by || params.category || '';
     const url = `${BASE_URL}/${categoryPath}`;
     const finalUrl = page > 0 && categoryPath.startsWith('c/') ? `${url}/${page}` : url;
     return parseVideoList(await fetchHtml(finalUrl));
@@ -611,18 +611,21 @@ async function getCategoryList(params) {
 
 async function getTagList(params) {
     const page = params.page ? parseInt(params.page) : 0;
-    return parseVideoList(await fetchHtml(`${BASE_URL}/tags/${params.tag}${page > 0 ? `/${page}` : ''}`));
+    const tag = params.sort_by || params.tag || '';
+    return parseVideoList(await fetchHtml(`${BASE_URL}/tags/${tag}${page > 0 ? `/${page}` : ''}`));
 }
 
 async function getChannelList(params) {
     const page = params.page ? parseInt(params.page) : 0;
-    const resp = await fetchApi(`${BASE_URL}/channels/${params.channel}/videos/best/${page}`);
+    const channel = params.sort_by || params.channel || '';
+    const resp = await fetchApi(`${BASE_URL}/channels/${channel}/videos/best/${page}`);
     return (resp.videos || []).map(formatXVideosItem);
 }
 
 async function getPornstarsList(params) {
     const page = params.page ? parseInt(params.page) : 0;
-    const resp = await fetchApi(`${BASE_URL}/pornstars/${params.pornstar}/videos/best/${page}`);
+    const pornstar = params.sort_by || params.pornstar || '';
+    const resp = await fetchApi(`${BASE_URL}/pornstars/${pornstar}/videos/best/${page}`);
     return (resp.videos || []).map(formatXVideosItem);
 }
 
