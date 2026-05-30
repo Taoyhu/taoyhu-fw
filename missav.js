@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "2.3.1",
+    version: "2.3.3",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     modules: [
@@ -20,7 +20,7 @@ WidgetMetadata = {
                     { title: "多人作品", value: "multiple" },
                     { title: "中文字幕", value: "chinese-subtitle" }
                 ] },
-                { name: "sort", title: "排序", type: "enumeration", value: "released_at", enumOptions: [
+                { name: "sort_by", title: "排序", type: "enumeration", value: "released_at", enumOptions: [
                     { title: "发行日期", value: "released_at" },
                     { title: "最近更新", value: "published_at" },
                     { title: "收藏数", value: "saved" },
@@ -37,7 +37,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm632/cn/release", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm632/cn/release", enumOptions: [
                     { title: "最新发布", value: "dm632/cn/release" },
                     { title: "本周热门", value: "dm170/cn/weekly-hot" },
                     { title: "月度热门", value: "dm266/cn/monthly-hot" }
@@ -50,7 +50,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm36/cn/siro", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm36/cn/siro", enumOptions: [
                     { title: "SIRO", value: "dm36/cn/siro" },
                     { title: "LUXU", value: "dm34/cn/luxu" },
                     { title: "GANA", value: "dm32/cn/gana" },
@@ -66,7 +66,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm814/cn/uncensored-leak", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm814/cn/uncensored-leak", enumOptions: [
                     { title: "无码流出", value: "dm814/cn/uncensored-leak" },
                     { title: "东京热", value: "dm42/cn/tokyohot" }
                 ] }
@@ -78,7 +78,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm63/cn/madou", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm63/cn/madou", enumOptions: [
                     { title: "麻豆传媒", value: "dm63/cn/madou" },
                     { title: "TWAV", value: "dm31/cn/twav" },
                     { title: "Furuke", value: "dm15/cn/furuke" },
@@ -93,7 +93,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm179/cn/actresses/%E7%80%AC%E6%88%B8%E7%92%B0%E5%A5%88", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm179/cn/actresses/%E7%80%AC%E6%88%B8%E7%92%B0%E5%A5%88", enumOptions: [
                     { title: "瀬戸環奈", value: "dm179/cn/actresses/%E7%80%AC%E6%88%B8%E7%92%B0%E5%A5%88" },
                     { title: "逢泽みゆ", value: "dm179/cn/actresses/%E9%80%A2%E6%B2%A2%E3%81%BF%E3%82%86" },
                     { title: "河北彩花", value: "dm179/cn/actresses/%E6%B2%B3%E5%8C%97%E5%BD%A9%E8%8A%B1" },
@@ -152,7 +152,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm96/cn/genres/%E9%AB%98%E6%B8%85", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm96/cn/genres/%E9%AB%98%E6%B8%85", enumOptions: [
                     { title: "高清", value: "dm96/cn/genres/%E9%AB%98%E6%B8%85" },
                     { title: "独家", value: "dm139/cn/genres/%E7%8B%AC%E5%AE%B6" },
                     { title: "中出", value: "dm130/cn/genres/%E4%B8%AD%E5%87%BA" },
@@ -198,7 +198,7 @@ WidgetMetadata = {
             type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
-                { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm825/cn/makers/Moody%27s", enumOptions: [
+                { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm825/cn/makers/Moody%27s", enumOptions: [
                     { title: "Moody's", value: "dm825/cn/makers/Moody%27s" },
                     { title: "Prestige", value: "dm825/cn/makers/Prestige" },
                     { title: "Madonna", value: "dm825/cn/makers/Madonna" },
@@ -320,8 +320,12 @@ function parseVideoList(html, options = {}) {
 }
 
 async function loadList(params = {}) {
-    const { endpoint = "dm632/cn/release", page = 1, sort = "", filters = "", category = "" } = params;
-    const url = buildListUrl(endpoint || category || "dm632/cn/release", page, filters, sort);
+    const { endpoint = "", page = 1, sort_by = "", filters = "" } = params;
+    const isPath = sort_by.includes('/');
+    const actualEndpoint = isPath ? sort_by : (endpoint || "dm632/cn/release");
+    const actualSort = !isPath ? sort_by : "";
+
+    const url = buildListUrl(actualEndpoint, page, filters, actualSort);
     try {
         const { data } = await Widget.http.get(url, { headers: HEADERS });
         return parseVideoList(data);
