@@ -74,7 +74,7 @@ WidgetMetadata = {
     id: 'xvideosTao',
     title: 'xvideos',
     description: 'xvideos视频资源浏览模块',
-    version: "1.1.0",
+    version: "1.1.1",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://www.xvideos.com',
@@ -101,7 +101,7 @@ WidgetMetadata = {
             functionName: 'getBestList',
             params: [
                 {
-                    name: 'sort_by',
+                    name: 'mode',
                     title: "类型",
                     type: 'enumeration',
                     value: 'free',
@@ -111,7 +111,7 @@ WidgetMetadata = {
                     ]
                 },
                 {
-                    name: 'archive',
+                    name: 'sort_by',
                     title: "月份",
                     type: 'enumeration',
                     value: '2026-04',
