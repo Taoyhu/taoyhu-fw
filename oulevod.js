@@ -4,7 +4,7 @@ WidgetMetadata = {
   icon: "",
   version: "1.1.8",
   requiredVersion: "0.0.1",
-  description: "全能聚合",
+  description: "全能聚合，相似推荐",
   author: "廿二日",
   site: "https://new.olevod.com",
   detailCacheDuration: 300,
