@@ -2,9 +2,9 @@ WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
-  version: "1.2.0",
+  version: "1.2.1",
   requiredVersion: "0.0.1",
-  description: "全能聚合，相似推荐",
+  description: "全能聚合",
   author: "廿二日",
   site: "https://new.olevod.com",
   detailCacheDuration: 300,
@@ -360,6 +360,8 @@ async function loadDetail(params) {
 
   const detail = await getDetailOle(apiHost.replace(/\/$/, ""), vodId);
   if (!detail) throw new Error("获取详情失败");
+
+  const pageTitle = detail.name || detail.vod_name || (typeof params === 'object' ? params.title : "") || detail.title || "未知标题";
   
   const episodeItems = [];
   const trailers = [];
@@ -379,10 +381,13 @@ async function loadDetail(params) {
     });
   }
   
-  const isMovie = episodeItems.length === 1 && !/(第\d+集|集)/.test(episodeItems[0].title || "");
-  
-  // 【核心修复点】完美反转优先级：绝对优先使用真正的电影名 (name/vod_name)，拿父级传来的标题兜底，最后才信赖乱七八糟的 title 字段
-  const pageTitle = detail.name || detail.vod_name || (typeof params === 'object' ? params.title : "") || detail.title || "未知标题";
+  // 更精准的电影/剧集分类判定
+  let isMovie = true;
+  if (detail.typeId1 === 2 || detail.typeId1 === 3 || detail.typeId1 === 4) {
+      isMovie = false;
+  } else if (episodeItems.some(item => /(第\d+集|集|期|话)/.test(item.title))) {
+      isMovie = false;
+  }
   
   let relatedItems = [];
   try {
@@ -405,6 +410,7 @@ async function loadDetail(params) {
     console.log("获取相关推荐失败: " + error);
   }
   
+  // 核心修复点：强制省略顶层 videoUrl，防止 FW 引擎因为“单集机制”覆盖主标题
   return {
     id: `ole_${vodId}`,
     type: "url",
@@ -416,7 +422,6 @@ async function loadDetail(params) {
     episode: episodeItems.length,
     episodeItems,
     trailers: trailers.length ? trailers : undefined,
-    relatedItems: relatedItems.length ? relatedItems : undefined,
-    videoUrl: isMovie && episodeItems.length ? episodeItems[0].videoUrl : null
+    relatedItems: relatedItems.length ? relatedItems : undefined
   };
 }
