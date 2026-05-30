@@ -1,0 +1,70 @@
+{
+  "title": "廿二日的合集",
+  "description": "Forward模块合集订阅源",
+  "icon": "https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/06jichang/xiaoyi%281%29.png",
+  "widgets": [
+    {
+      "id": "91pornTao",
+      "title": "91Porn",
+      "description": "91Porn网站聚合",
+      "requiredVersion": "0.0.1",
+      "version": "1.1.3",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/91Porn.js"
+    },
+    {
+      "id": "jableTao",
+      "title": "jable",
+      "description": "jable网站聚合",
+      "requiredVersion": "0.0.2",
+      "version": "1.1.6",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/jable.js"
+    },
+    {
+      "id": "liveTao",
+      "title": "直播源",
+      "description": "解析直播订阅链接，尝鲜",
+      "requiredVersion": "0.0.1",
+      "version": "1.0.2",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/live.js"
+    },
+    {
+      "id": "missavTao",
+      "title": "missav",
+      "description": "missav视频聚合模块",
+      "requiredVersion": "0.0.1",
+      "version": "1.0.3",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/missav.js"
+    },
+    {
+      "id": "OleLiveTao",
+      "title": "欧乐影视",
+      "description": "全能聚合",
+      "requiredVersion": "0.0.1",
+      "version": "1.2.1",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/oulevod.js"
+    },
+    {
+      "id": "pornhubTao",
+      "title": "pornhub",
+      "description": "Pornhub网站聚合，账号认证",
+      "requiredVersion": "0.0.1",
+      "version": "1.1.7",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/pornhub.js"
+    },
+    {
+      "id": "xvideosTao",
+      "title": "xvideos",
+      "description": "xvideos视频资源浏览模块",
+      "requiredVersion": "0.0.1",
+      "version": "1.1.2",
+      "author": "廿二日",
+      "url": "https://raw.githubusercontent.com/Taoyhu/taozing/main/widgets/xvideos.js"
+    }
+  ]
+}
