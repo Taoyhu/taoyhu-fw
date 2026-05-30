@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "3.0.2",
+    version: "3.0.3",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     cacheDuration: 3600,
@@ -254,7 +254,7 @@ WidgetMetadata = {
         title: "🌐 全局搜索",
         functionName: "searchGlobal",
         params: [
-            { name: "keyword", title: "关键词", type: "input", description: "搜索的关键词", value: "" },
+            { name: "keyword", title: "关键词", type: "input", value: "" },
             { name: "page", title: "页码", type: "page", value: "1" }
         ]
     }
@@ -409,7 +409,48 @@ async function loadDetail(link) {
 
         videoUrl = videoUrl || (html.match(/source\s*=\s*['"]([^'"]+)['"]/)?.[1] ?? "");
 
-        const relatedItems = parseVideoList(html).filter(item => item.type === "link" && item.id !== link);
+        let relatedItems = parseVideoList(html).filter(item => item.type === "link" && item.id !== link);
+
+        if (!relatedItems.length) {
+            try {
+                const recommendMatch = html.match(/(?:recommendItems|videos)\s*:\s*(\[.*?\])\s*(?:,|})/s);
+                if (recommendMatch && recommendMatch[1]) {
+                    const itemsJsonStr = recommendMatch[1].replace(/&quot;/g, '"');
+                    let items = [];
+                    try {
+                        items = JSON.parse(itemsJsonStr);
+                    } catch (err) {
+                        items = eval(`(${itemsJsonStr})`);
+                    }
+
+                    if (Array.isArray(items)) {
+                        relatedItems = items.map(item => {
+                            const code = item.dvd_id || item.code || "";
+                            const itemHref = item.url || (code ? `https://missav.ai/cn/${code.toLowerCase()}` : "");
+                            const coverUrl = item.cover_url || item.cover || (code ? `https://fourhoi.com/${code.toLowerCase()}/cover-t.jpg` : "");
+                            
+                            let timeText = "未知";
+                            if (item.duration) {
+                                const h = Math.floor(item.duration / 3600);
+                                const m = Math.floor((item.duration % 3600) / 60).toString().padStart(2, '0');
+                                const s = (item.duration % 60).toString().padStart(2, '0');
+                                timeText = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+                            }
+
+                            return {
+                                id: itemHref,
+                                type: "link",
+                                title: item.title || code,
+                                coverUrl: coverUrl,
+                                link: itemHref,
+                                description: `时长: ${timeText}${code ? ` | 番号: ${code}` : ""}`,
+                                customHeaders: HEADERS
+                            };
+                        }).filter(item => item.id && item.id !== link);
+                    }
+                }
+            } catch (e) {}
+        }
 
         if (videoUrl) {
             return [{
