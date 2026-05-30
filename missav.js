@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "3.0.1",
+    version: "3.0.2",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     cacheDuration: 3600,
@@ -420,7 +420,6 @@ async function loadDetail(link) {
                 actors,
                 playerType: "system",
                 relatedItems,
-                childItems: relatedItems,
                 customHeaders: { ...HEADERS, "Origin": "https://missav.ai" }
             }];
         }
