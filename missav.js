@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "3.0.5",
+    version: "1.0.2",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     cacheDuration: 3600,
@@ -12,6 +12,7 @@ WidgetMetadata = {
         {
             title: "中文字幕",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "endpoint", title: "endpoint", type: "enumeration", value: "dm278/cn/chinese-subtitle", enumOptions: [{ title: "中文字幕", value: "dm278/cn/chinese-subtitle" }] },
@@ -35,6 +36,7 @@ WidgetMetadata = {
         {
             title: "日本AV",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm632/cn/release", enumOptions: [
@@ -47,6 +49,7 @@ WidgetMetadata = {
         {
             title: "素人",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm36/cn/siro", enumOptions: [
@@ -62,6 +65,7 @@ WidgetMetadata = {
         {
             title: "无码影片",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm814/cn/uncensored-leak", enumOptions: [
@@ -73,6 +77,7 @@ WidgetMetadata = {
         {
             title: "亚洲AV",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm63/cn/madou", enumOptions: [
@@ -87,6 +92,7 @@ WidgetMetadata = {
         {
             title: "女优",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm179/cn/actresses/%E7%80%AC%E6%88%B8%E7%92%B0%E5%A5%88", enumOptions: [
@@ -145,6 +151,7 @@ WidgetMetadata = {
         {
             title: "类型",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm96/cn/genres/%E9%AB%98%E6%B8%85", enumOptions: [
@@ -190,6 +197,7 @@ WidgetMetadata = {
         {
             title: "发行商",
             functionName: "loadList",
+            type: "video",
             params: [
                 { name: "page", title: "页码", type: "page" },
                 { name: "sort_by", title: "endpoint", type: "enumeration", value: "dm825/cn/makers/Moody%27s", enumOptions: [
@@ -235,6 +243,7 @@ WidgetMetadata = {
         {
             title: "搜索",
             functionName: "searchList",
+            type: "video",
             params: [
                 { name: "keyword", title: "关键词", type: "input", value: "" },
                 { name: "page", title: "页码", type: "page" }
@@ -278,7 +287,7 @@ function resolveUrl(path) {
 
 function parseVideoList(html, options = {}) {
     if (!html || html.includes("Just a moment")) {
-        return [];
+        return [{ id: "err_cf", type: "text", title: "被 Cloudflare 拦截", subTitle: "请稍后重试" }];
     }
 
     const $ = Widget.html.load(html);
@@ -299,7 +308,7 @@ function parseVideoList(html, options = {}) {
 
             results.push({
                 id: href,
-                type: "url",
+                type: "link",
                 title: $link.text().trim(),
                 coverUrl: finalCover,
                 previewUrl,
@@ -311,7 +320,7 @@ function parseVideoList(html, options = {}) {
         }
     });
 
-    return results;
+    return results.length > 0 ? results : [{ id: "empty", type: "text", title: "没有找到相关视频" }];
 }
 
 async function loadList(params = {}) {
@@ -323,36 +332,33 @@ async function loadList(params = {}) {
     const url = buildListUrl(actualEndpoint, page, filters, actualSort);
     try {
         const { data } = await Widget.http.get(url, { headers: HEADERS });
-        const results = parseVideoList(data);
-        return results.length > 0 ? results : [];
+        return parseVideoList(data);
     } catch (e) {
-        throw new Error(e.message);
+        return [{ id: "err", type: "text", title: "加载失败", subTitle: e.message }];
     }
 }
 
 async function searchList(params = {}) {
     const { page = 1, keyword } = params;
-    if (!keyword) return [];
+    if (!keyword) return [{ id: "tip", type: "text", title: "请输入关键词开始搜索" }];
     let url = `${BASE_URL}/cn/search/${encodeURIComponent(keyword)}${page > 1 ? `?page=${page}` : ""}`;
     try {
         const { data } = await Widget.http.get(url, { headers: HEADERS });
-        const results = parseVideoList(data);
-        return results.length > 0 ? results : [];
+        return parseVideoList(data);
     } catch (e) {
-        throw new Error(e.message);
+        return [{ id: "err", type: "text", title: "搜索失败", subTitle: e.message }];
     }
 }
 
 async function searchGlobal(params = {}) {
     const { page = 1, keyword } = params;
-    if (!keyword) return [];
+    if (!keyword) return [{ id: "tip", type: "text", title: "请输入关键词开始全局搜索" }];
     let url = `${BASE_URL}/cn/search/${encodeURIComponent(keyword)}${page > 1 ? `?page=${page}` : ""}`;
     try {
         const { data } = await Widget.http.get(url, { headers: HEADERS });
-        const results = parseVideoList(data, { includeImageFields: true });
-        return results.length > 0 ? results : [];
+        return parseVideoList(data, { includeImageFields: true });
     } catch (e) {
-        throw new Error(e.message);
+        return [{ id: "err", type: "text", title: "全局搜索失败", subTitle: e.message }];
     }
 }
 
@@ -362,16 +368,14 @@ async function loadDetail(link) {
         const $ = Widget.html.load(html);
         const title = $('meta[property="og:title"]').attr('content') ?? $('h1').text().trim();
         let videoUrl = "";
-        
-        const peoples = [];
+        const actors = [];
         const seenActors = new Set();
 
         const pushActor = (name, avatar, href) => {
             const cleanName = name?.trim();
             if (!cleanName || seenActors.has(cleanName)) return;
             seenActors.add(cleanName);
-            const personId = href ? href.split('/').pop() : cleanName;
-            peoples.push({ id: personId, title: cleanName, avatar: avatar ?? "", role: "演员" });
+            actors.push({ name: cleanName, avatar: avatar ?? "", link: href ?? "" });
         };
 
         ['a[href*="/actresses/"]', 'a[href*="/actors/"]', 'a[href*="actresses"]', 'a[href*="actors"]'].forEach(selector => {
@@ -383,7 +387,7 @@ async function loadDetail(link) {
             });
         });
 
-        if (!peoples.length) {
+        if (!actors.length) {
             const metaActor = $('meta[name="keywords"]').attr('content') ?? $('meta[property="video:tag"]').attr('content') ?? "";
             metaActor.split(',').map(s => s.trim()).filter(Boolean).forEach(name => pushActor(name, "", ""));
         }
@@ -405,90 +409,22 @@ async function loadDetail(link) {
 
         videoUrl = videoUrl || (html.match(/source\s*=\s*['"]([^'"]+)['"]/)?.[1] ?? "");
 
-        let childItems = parseVideoList(html).filter(item => item.id && item.id !== link);
-
-        if (!childItems.length) {
-            try {
-                const recommendMatch = html.match(/(?:recommendItems|videos)\s*:\s*(\[.*?\])\s*(?:,|})/s);
-                if (recommendMatch && recommendMatch[1]) {
-                    const itemsJsonStr = recommendMatch[1].replace(/&quot;/g, '"');
-                    let items = [];
-                    try {
-                        items = JSON.parse(itemsJsonStr);
-                    } catch (err) {
-                        items = eval(`(${itemsJsonStr})`);
-                    }
-
-                    if (Array.isArray(items)) {
-                        childItems = items.map(item => {
-                            const code = item.dvd_id || item.code || "";
-                            const itemHref = item.url || (code ? `https://missav.ai/cn/${code.toLowerCase()}` : "");
-                            const coverUrl = item.cover_url || item.cover || (code ? `https://fourhoi.com/${code.toLowerCase()}/cover-t.jpg` : "");
-                            
-                            let timeText = "未知";
-                            if (item.duration) {
-                                const h = Math.floor(item.duration / 3600);
-                                const m = Math.floor((item.duration % 3600) / 60).toString().padStart(2, '0');
-                                const s = (item.duration % 60).toString().padStart(2, '0');
-                                timeText = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
-                            }
-
-                            return {
-                                id: itemHref,
-                                type: "url",
-                                title: item.title || code,
-                                coverUrl: coverUrl,
-                                link: itemHref,
-                                description: `时长: ${timeText}${code ? ` | 番号: ${code}` : ""}`,
-                                customHeaders: HEADERS
-                            };
-                        }).filter(item => item.id && item.id !== link);
-                    }
-                }
-            } catch (e) {}
-        }
-
-        if (!childItems.length) {
-            const seenIds = new Set();
-            $('a[href*="missav.ai/cn/"], a[href^="/cn/"]').each((_, el) => {
-                const $el = $(el);
-                const href = resolveUrl($el.attr('href'));
-                
-                if (href && href !== link && !href.includes('/actresses/') && !href.includes('/makers/') && !href.includes('/genres/') && !href.includes('/search/')) {
-                    const videoId = extractVideoId(href);
-                    if (videoId && !seenIds.has(href)) {
-                        seenIds.add(href);
-                        const titleText = $el.text().replace(/\s+/g, ' ').trim() || videoId;
-                        let coverUrl = $el.find('img').attr('data-src') || $el.find('img').attr('src') || `https://fourhoi.com/${videoId.toLowerCase()}/cover-t.jpg`;
-                        
-                        childItems.push({
-                            id: href,
-                            type: "url",
-                            title: titleText,
-                            coverUrl: coverUrl,
-                            link: href,
-                            description: `番号: ${videoId}`,
-                            customHeaders: HEADERS
-                        });
-                    }
-                }
-            });
-        }
+        const relatedItems = parseVideoList(html).filter(item => item.type === "link" && item.id !== link);
 
         if (videoUrl) {
-            return {
+            return [{
                 id: link,
-                type: "url",
+                type: "video",
                 title,
                 videoUrl,
-                peoples,
+                actors,
                 playerType: "system",
-                childItems,
+                relatedItems,
                 customHeaders: { ...HEADERS, "Origin": "https://missav.ai" }
-            };
+            }];
         }
-        throw new Error("未找到播放地址");
+        return [{ id: "err", type: "text", title: "解析失败", subTitle: "未找到播放地址" }];
     } catch (e) {
-        throw new Error(`加载详情失败: ${e.message}`);
+        return [{ id: "err", type: "text", title: "请求错误", subTitle: e.message }];
     }
 }
