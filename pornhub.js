@@ -7,7 +7,7 @@ const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",val
 WidgetMetadata = {
     id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.4",
+    version: "1.1.5",
     requiredVersion: "0.0.1",
     description: "Pornhub网站聚合，账号认证",
     author: "廿二日",
@@ -55,8 +55,7 @@ WidgetMetadata = {
             cacheDuration: 86400,
             params: [
                 {
-                    name: "username", title: "艺人名称", type: "enumeration", value: "HongKongDoll",
-                    belongTo: { paramName: "sort_by", value: ["new", "views", "rating"] },
+                    name: "sort_by", title: "艺人名称", type: "enumeration", value: "HongKongDoll",
                     enumOptions: [
                         {title:'HongKongDoll',value:'HongKongDoll'},{title:'Nana_taipei',value:'Nana_taipei'},{title:'Sweetie Fox',value:'sweetie-fox'},
                         {title:'Diana Rider',value:'diana-rider'},{title:'Sola Zola',value:'solazola'},{title:'Candy Love',value:'candy-love'},
@@ -76,7 +75,7 @@ WidgetMetadata = {
                         {title:'Mirari Model',value:'mirari-model'}
                     ]
                 },
-                { name: "sort_by", title: "排序方式", type: "enumeration", value: "new", enumOptions: SORT_BASIC },
+                { name: "sort", title: "排序方式", type: "enumeration", value: "new", enumOptions: SORT_BASIC },
                 { name: "logo", title: "标识符", type: "constant", value: "yx" },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
@@ -126,9 +125,9 @@ WidgetMetadata = {
                 { name: "pageType", title: "页面类型", type: "constant", value: "ht" },
                 { name: "p", title: "出品类型", type: "enumeration", value: "", enumOptions: PRODUCTIONS_OPTIONS },
                 { name: "hd", title: "分辨率", type: "enumeration", value: "", enumOptions: RESOLUTION_OPTIONS },
-                { name: "c", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
+                { name: "sort_by", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
                 { name: "country", title: "国家/地区", type: "enumeration", value: "world", enumOptions: COUNTRIES_OPTIONS },
-                { name: "sort_by", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每周",value:""},{title:"每天",value:"t"},{title:"每月",value:"m"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
+                { name: "timeframe", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每周",value:""},{title:"每天",value:"t"},{title:"每月",value:"m"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
         },
@@ -141,8 +140,8 @@ WidgetMetadata = {
                 { name: "pageType", title: "页面类型", type: "constant", value: "mv" },
                 { name: "p", title: "出品类型", type: "enumeration", value: "", enumOptions: PRODUCTIONS_OPTIONS },
                 { name: "hd", title: "分辨率", type: "enumeration", value: "", enumOptions: RESOLUTION_OPTIONS },
-                { name: "c", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
-                { name: "sort_by", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每月",value:""},{title:"每天",value:"t"},{title:"每周",value:"w"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
+                { name: "sort_by", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
+                { name: "timeframe", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每月",value:""},{title:"每天",value:"t"},{title:"每周",value:"w"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
                 { name: "country", title: "国家/地区", type: "enumeration", value: "world", enumOptions: COUNTRIES_OPTIONS },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
@@ -156,8 +155,8 @@ WidgetMetadata = {
                 { name: "pageType", title: "页面类型", type: "constant", value: "tr" },
                 { name: "p", title: "出品类型", type: "enumeration", value: "", enumOptions: PRODUCTIONS_OPTIONS },
                 { name: "hd", title: "分辨率", type: "enumeration", value: "", enumOptions: RESOLUTION_OPTIONS },
-                { name: "c", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
-                { name: "sort_by", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每月",value:""},{title:"每天",value:"t"},{title:"每周",value:"w"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
+                { name: "sort_by", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
+                { name: "timeframe", title: "时间范围", type: "enumeration", value: "", enumOptions: [{title:"每月",value:""},{title:"每天",value:"t"},{title:"每周",value:"w"},{title:"每年",value:"y"},{title:"迄今为止",value:"a"}] },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
         },
@@ -167,7 +166,7 @@ WidgetMetadata = {
             functionName: "getVideos",
             cacheDuration: 600,
             params: [
-                { name: "c", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
+                { name: "sort_by", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
                 { name: "p", title: "出品类型", type: "enumeration", value: "", enumOptions: PRODUCTIONS_OPTIONS },
                 { name: "hd", title: "分辨率", type: "enumeration", value: "", enumOptions: RESOLUTION_OPTIONS },
                 { name: "page", title: "页码", type: "page", value: "1" }
@@ -182,7 +181,7 @@ WidgetMetadata = {
                 { name: "pageType", title: "页面类型", type: "constant", value: "cm" },
                 { name: "p", title: "出品类型", type: "enumeration", value: "", enumOptions: PRODUCTIONS_OPTIONS },
                 { name: "hd", title: "分辨率", type: "enumeration", value: "", enumOptions: RESOLUTION_OPTIONS },
-                { name: "c", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
+                { name: "sort_by", title: "视频类型", type: "enumeration", value: "", enumOptions: VIDEO_CATEGORIES },
                 { name: "page", title: "页码", type: "page", value: "1" }
             ]
         }
@@ -261,7 +260,10 @@ const ARTIST_CATALOG = [
 
 const createDefaultHeaders = extra => ({ ...COMMON_HEADERS, ...extra });
 const normalizeText = val => String(val || "").replace(/\s+/g, " ").trim();
-const trimUrl = url => url ? url.replace(/\r?\n|\r/g, "").trim() : "";
+const trimUrl = url => url ? url.replace(/
+?
+|
+/g, "").trim() : "";
 const looksLikePlaceholderUrl = url => /(?:placeholder|spacer|loading|blank|default|sprite|gif;base64|data:image\/gif)/i.test(url) || url.length < 12;
 
 const buildUrl = (path, query) => {
@@ -337,7 +339,7 @@ const extractDetailCoverFromHtml = (html, $root) => {
             if (val && !looksLikePlaceholderUrl(val)) return val;
         }
         const match = html.match(/"imageUrl"\s*:\s*"([^"]+)"/i) || html.match(/"thumbnailUrl"\s*:\s*"([^"]+)"/i);
-        return match?.[1]?.replace(/\\/g, "") || "";
+        return match?.[1]?.replace(/\/g, "") || "";
     } catch { return ""; }
 };
 
@@ -420,7 +422,7 @@ const extractM3u8FromHtml = html => {
     if (picked) return picked;
 
     const directUrlPatterns = [
-        /https?:\/\/[^\"'\s]+\.m3u8(?:\?[^\"'\s]*)?/i,
+        /https?:\/\/[^"'\s]+\.m3u8(?:\?[^"'\s]*)?/i,
         /videoUrl\s*[:=]\s*["']([^"']+\.m3u8(?:\?[^"']*)?)["']/i,
         /source\s*[:=]\s*["']([^"']+\.m3u8(?:\?[^"']*)?)["']/i
     ];
@@ -481,12 +483,15 @@ async function getFavorites(params) {
 }
 
 async function getUserUploads(params) {
-    let type = params.logo === 'yx' ? ARTIST_CATALOG.find(o => o.value === params.username)?.type : normalizeText(params.user_type || 'model').toLowerCase();
+    let type = params.logo === 'yx' ? ARTIST_CATALOG.find(o => o.value === params.sort_by)?.type : normalizeText(params.user_type || 'model').toLowerCase();
     if (!type) throw new Error('无效的艺人信息');
     
-    const username = normalizeText(params.username).replace(/\s+/g, '-').toLowerCase();
+    const rawUsername = params.logo === 'yx' ? params.sort_by : params.username;
+    const username = normalizeText(rawUsername).replace(/\s+/g, '-').toLowerCase();
     const page = Math.max(1, Number(params.page) || 1);
-    const sortStr = params.sort_by === 'views' ? (type === 'channels' ? 'vi' : 'mv') : params.sort_by === 'rating' ? (type === 'channels' ? 'ra' : 'tr') : 'mr';
+    
+    const activeSort = params.logo === 'yx' ? params.sort : params.sort_by;
+    const sortStr = activeSort === 'views' ? (type === 'channels' ? 'vi' : 'mv') : activeSort === 'rating' ? (type === 'channels' ? 'ra' : 'tr') : 'mr';
     
     const url = type === 'pornstar' ? buildUrl(`/pornstar/${username}/videos/upload`, { o: 'mr', page: page > 1 ? page : '' }) 
               : type === 'channels' ? buildUrl(`/channels/${username}/videos`, { o: sortStr, page: page > 1 ? page : '' })
@@ -541,17 +546,17 @@ async function getVideosByLanguage(params) {
 
 async function getVideos(params) {
     const page = Math.max(1, Number(params.page) || 1);
-    const { pageType = "cm", c = "", country = "", hd = "", p = "", sort_by = "" } = params;
+    const { pageType = "cm", country = "", hd = "", p = "", sort_by = "", timeframe = "" } = params;
     
     const qs = { page };
     if (hd === "1") qs.hd = "1";
     if (p) qs.p = p;
-    if (c && c !== "teen") qs.c = c;
+    if (sort_by && sort_by !== "teen") qs.c = sort_by;
     if (country && country !== "world") qs.cc = country;
-    if (sort_by) qs.t = sort_by;
+    if (timeframe) qs.t = timeframe;
     qs.o = pageType === "latestFeatured" ? "" : pageType;
 
-    const base = c === "teen" ? "/categories/teen" : "/video";
+    const base = sort_by === "teen" ? "/categories/teen" : "/video";
     const url = buildUrl(base, qs);
     
     const res = await Widget.http.get(url, { headers: createDefaultHeaders({ "Referer": `${PH_BASE_URL}/` }) });
