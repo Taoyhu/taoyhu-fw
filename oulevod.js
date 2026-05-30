@@ -2,7 +2,7 @@ WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
-  version: "1.1.5",
+  version: "1.1.6",
   requiredVersion: "0.0.1",
   description: "全能聚合",
   author: "廿二日",
@@ -49,9 +49,7 @@ const REQUEST_HEADERS = {
 
 const cacheStore = new Map();
 
-function getCacheKey(seriesName, type, episode) {
-  return `${seriesName}_${type}_${episode || "all"}`;
-}
+function getCacheKey(seriesName, type, episode) { return `${seriesName}_${type}_${episode || "all"}`; }
 
 function getFromCache(key) {
   const entry = cacheStore.get(key);
@@ -198,7 +196,6 @@ async function searchVodOle(apiHost, keyword, pg = 1) {
   const res = await httpGet(url);
   const vodData = res?.data?.data?.find(item => item.type === "vod");
   if (!vodData?.list) return [];
-  
   return vodData.list
     .filter(item => GLOBAL_COOKIE || !item.vip)
     .map(item => ({
@@ -221,18 +218,14 @@ async function loadResource(params) {
   const type = params?.type === "movie" ? "movie" : "tv";
   const episode = params?.episode ? parseInt(params.episode) : null;
   if (!seriesName) return [];
-
   const cacheKey = getCacheKey(seriesName, type, episode);
   const cached = getFromCache(cacheKey);
   if (cached) return cached;
-
   const searchKeyword = extractBaseName(seriesName);
   const searchResults = await searchVodOle(apiHost, searchKeyword);
   if (!searchResults.length) return [];
-
   const userNorm = normalizeTitle(seriesName);
   const userYear = extractYear(seriesName);
-  
   let candidates = searchResults.map(item => {
     let score = 0;
     const itemNorm = normalizeTitle(item.vod_name);
@@ -241,41 +234,32 @@ async function loadResource(params) {
     else if (itemNorm.includes(userNorm) || userNorm.includes(itemNorm)) score = 80;
     return { item, score };
   }).filter(c => c.score > 0).sort((a, b) => b.score - a.score);
-
   if (!candidates.length) return [];
-  
   let finalMatch = candidates.find(c => {
     const candYear = c.item.year ? parseInt(c.item.year) : null;
     return (!userYear || candYear === userYear) && (type !== "movie" || c.item.vod_type === "movie");
   })?.item || candidates[0].item;
-
   const detail = await getDetailOle(apiHost, finalMatch.vod_id);
   if (!detail?.urls?.length) return [];
-
   const realTitle = detail.title || detail.name || finalMatch.vod_name;
   const urlSet = new Set();
   const uniqueResources = [];
-
   for (const item of detail.urls) {
     if (!GLOBAL_COOKIE && item.vip) continue;
     const videoUrl = item.url || item.play_url || item.link;
     if (!videoUrl || urlSet.has(videoUrl)) continue;
-    
     const epNum = extractEpisodeNumber(item.title);
     if (type === "tv" && episode !== null && epNum !== episode) continue;
-
     urlSet.add(videoUrl);
     let description = realTitle;
     if (type === "tv" && item.title && !item.title.includes("正片")) description += ` ${item.title}`;
     const language = extractLanguage(finalMatch.vod_remarks, item.title);
     if (language) description += ` [${language}]`;
-
     uniqueResources.push({
       id: `${finalMatch.vod_id}_${Date.now()}_${uniqueResources.length}`,
       name: "欧乐影视", type, description, url: videoUrl
     });
   }
-  
   setToCache(cacheKey, uniqueResources);
   return uniqueResources;
 }
@@ -285,10 +269,8 @@ async function searchOle(params = {}) {
   const apiHost = (params.ApiHost || DEFAULT_API_HOST).replace(/\/$/, "");
   const keyword = params.wd || params.keyword || "";
   if (!keyword.trim()) throw new Error("请输入搜索关键词");
-  
   const results = await searchVodOle(apiHost, keyword, params.pg || 1);
   if (!results.length) return [{ id: "empty", type: "text", title: "未找到相关影片，请尝试其他关键词" }];
-  
   return results.map(item => ({
     id: `ole_detail_${item.vod_id}`, type: "url", title: item.vod_name,
     posterPath: item.vod_pic, releaseDate: item.year,
@@ -306,7 +288,6 @@ async function fetchCategoryList(apiHost, cateId, area, sortBy, page) {
   const res = await httpGet(url);
   const list = res?.code === 0 ? res.data?.list || [] : [];
   const categoryName = CATEGORY_NAME[cateId] || "影视";
-  
   return list.map(item => ({
     id: `ole_${item.id}`, type: "url", title: item.name,
     posterPath: DEFAULT_PIC_HOST + item.pic, backdropPath: DEFAULT_PIC_HOST + item.pic,
@@ -344,24 +325,53 @@ async function loadDetail(params) {
     if (!vodId) throw new Error("无法解析视频ID");
     
     const detail = await getDetailOle(apiHost.replace(/\/$/, ""), vodId);
-    if (!detail?.urls?.length) throw new Error("获取详情失败或无播放源");
+    if (!detail) throw new Error("获取详情失败");
     
-    const isMovie = detail.urls.length === 1 && !/(第\d+集|集)/.test(detail.urls[0].title || "");
-    const episodeItems = detail.urls
-      .filter(item => GLOBAL_COOKIE || !item.vip)
-      .filter(item => item.url || item.play_url || item.link)
-      .map((item, i) => ({
-        id: `${vodId}_${i}`, type: "url", title: item.title || "播放",
-        videoUrl: item.url || item.play_url || item.link, mediaType: "episode"
-      }));
-      
-    if (!episodeItems.length) throw new Error("未找到可播放的链接");
+    const episodeItems = [];
+    const trailers = [];
+    
+    if (detail.urls && detail.urls.length) {
+      detail.urls.filter(item => GLOBAL_COOKIE || !item.vip).forEach((item, i) => {
+        const videoUrl = item.url || item.play_url || item.link;
+        if (!videoUrl) return;
+        
+        const title = item.title || "播放";
+        if (title.includes("预告")) {
+          trailers.push({ coverUrl: detail.pic || "", url: videoUrl });
+        } else {
+          episodeItems.push({ id: `${vodId}_${i}`, type: "url", title: title, videoUrl: videoUrl, mediaType: "episode" });
+        }
+      });
+    }
+    
+    const isMovie = episodeItems.length === 1 && !/(第\d+集|集)/.test(episodeItems[0].title || "");
+    const relatedListRaw = detail.vod_rel_vod || detail.relate_list || detail.rel_list || [];
+    
+    const relatedItems = relatedListRaw.slice(0, 12).map(item => {
+      const p = item.vod_pic || item.pic || "";
+      return {
+        id: `ole_${item.vod_id || item.id}`,
+        type: "url",
+        title: item.vod_name || item.name || "未知",
+        posterPath: p.startsWith("http") ? p : DEFAULT_PIC_HOST + p,
+        mediaType: (item.vod_type || item.type) === "movie" ? "movie" : "tv",
+        link: `ole://detail?id=${item.vod_id || item.id}&api=${encodeURIComponent(apiHost)}`
+      };
+    }).filter(item => item.id !== `ole_${vodId}`);
     
     return {
-      id: `ole_${vodId}`, type: "url", title: detail.title || detail.name || "未知标题",
-      description: detail.intro || "", posterPath: detail.pic || "", backdropPath: detail.pic || "",
-      mediaType: isMovie ? "movie" : "tv", episode: episodeItems.length, episodeItems,
-      videoUrl: isMovie ? episodeItems[0].videoUrl : null
+      id: `ole_${vodId}`,
+      type: "url",
+      title: detail.title || detail.name || "未知标题",
+      description: detail.intro || "",
+      posterPath: detail.pic || "",
+      backdropPath: detail.pic || "",
+      mediaType: isMovie ? "movie" : "tv",
+      episode: episodeItems.length,
+      episodeItems,
+      trailers: trailers.length ? trailers : undefined,
+      relatedItems: relatedItems.length ? relatedItems : undefined,
+      videoUrl: isMovie && episodeItems.length ? episodeItems[0].videoUrl : null
     };
   }
   return { id: detailId, type: "url", title: "播放", videoUrl: detailId, mediaType: "movie" };
