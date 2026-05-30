@@ -4,7 +4,7 @@ WidgetMetadata = {
   description: "jable网站聚合",
   author: "廿二日",
   site: "https://jable.tv",
-  version: "1.1.5",
+  version: "1.1.6",
   requiredVersion: "0.0.2",
   detailCacheDuration: 300,
   modules: [
@@ -639,8 +639,40 @@ async function loadDetail(link) {
     },
   });
 
-  const url = extractPlaybackUrlFromVideoTags(Widget.html.load(data || "")) || extractPlaybackUrlFromScripts(data || "");
+  const $ = Widget.html.load(data || "");
+  const url = extractPlaybackUrlFromVideoTags($) || extractPlaybackUrlFromScripts(data || "");
+  
   if (!url) throw new Error("无法获取有效的播放地址，可能需要代理验证");
+
+  const childItems = [];
+  
+  $(".video-img-box").each((_, el) => {
+    const $item = $(el);
+    const itemUrl = $item.find(".title a").first().attr("href") || $item.find("a").first().attr("href");
+    
+    if (itemUrl && itemUrl.includes("jable.tv") && itemUrl !== link) {
+      const $cover = $item.find("img").first();
+      const cover = $cover.attr("data-src") || $cover.attr("src");
+      
+      childItems.push({
+        id: itemUrl,
+        type: "url",
+        title: $item.find(".title a").first().text().trim() || $item.find("img").attr("alt") || "未知标题",
+        backdropPath: cover, // 兼容多种图片字段
+        posterPath: cover,
+        image: cover,
+        coverUrl: cover,
+        previewUrl: $cover.attr("data-preview") || "", // 顺便抓取预览视频
+        link: itemUrl,
+        mediaType: "movie",
+        description: "",
+        releaseDate: $item.find(".absolute-bottom-right .label").first().text().trim(),
+        playerType: "system",
+      });
+    }
+  });
+
+  const uniqueChildItems = Array.from(new Map(childItems.map(item => [item.id, item])).values());
 
   return {
     id: link,
@@ -652,5 +684,6 @@ async function loadDetail(link) {
       Referer: link,
       Origin: "https://jable.tv",
     },
+    childItems: uniqueChildItems 
   };
 }
