@@ -1,1 +1,39 @@
+name: Auto Generate Widget Index
 
+# 触发条件：当推送到 main 分支，且 widgets 目录下的 js 文件有变动时
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'widgets/**/*.js'
+
+# 任务流程
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    
+    # 授予 GitHub Action 推送代码的权限 (重要)
+    permissions:
+      contents: write 
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Node.js 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 运行生成脚本
+        run: node generate-widget-index.js
+
+      - name: 提交并推送到仓库
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add forward-widgets.fwd
+          # 如果文件没有变化，则不执行 commit 避免报错
+          git commit -m "chore: 自动更新 forward-widgets.fwd 索引 [skip ci]" || exit 0
+          git push
