@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "1.0.2",
+    version: "1.0.3",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     cacheDuration: 3600,
@@ -296,9 +296,10 @@ function parseVideoList(html, options = {}) {
     $("div.group").each((_, el) => {
         const $el = $(el);
         const $link = $el.find("a.text-secondary");
-        const href = $link.attr("href");
+        let href = $link.attr("href");
 
         if (href) {
+            href = resolveUrl(href);
             const $img = $el.find("img");
             const imgSrc = $img.attr("data-src") ?? $img.attr("src") ?? "";
             const previewUrl = $el.find("video").attr("data-src") ?? $el.find("video").attr("src") ?? $el.find("[data-preview]").attr("data-preview") ?? $el.find("[data-webm]").attr("data-webm") ?? "";
@@ -308,7 +309,7 @@ function parseVideoList(html, options = {}) {
 
             results.push({
                 id: href,
-                type: "link",
+                type: "url",
                 title: $link.text().trim(),
                 coverUrl: finalCover,
                 previewUrl,
@@ -409,7 +410,9 @@ async function loadDetail(link) {
 
         videoUrl = videoUrl || (html.match(/source\s*=\s*['"]([^'"]+)['"]/)?.[1] ?? "");
 
-        const relatedItems = parseVideoList(html).filter(item => item.type === "link" && item.id !== link);
+        const relatedItems = parseVideoList(html, { includeImageFields: true })
+            .filter(item => item.type === "url" && item.id !== link)
+            .slice(0, 12);
 
         if (videoUrl) {
             return [{
