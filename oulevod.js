@@ -2,7 +2,7 @@ WidgetMetadata = {
   id: "OleLiveTao",
   title: "欧乐影视",
   icon: "",
-  version: "1.1.9",
+  version: "1.2.0",
   requiredVersion: "0.0.1",
   description: "全能聚合，相似推荐",
   author: "廿二日",
@@ -319,7 +319,6 @@ function loadVarietyList(params) { return baseLoadList(params, "variety"); }
 function loadAnimeList(params) { return baseLoadList(params, "anime"); }
 function loadShortList(params) { return baseLoadList(params, "short"); }
 
-// 核心修复区：完美重构ID解析逻辑，确保任意入口进入皆可触发详细信息请求
 async function loadDetail(params) {
   let vodId = "";
   let apiHost = DEFAULT_API_HOST;
@@ -355,12 +354,10 @@ async function loadDetail(params) {
     }
   }
 
-  // 兜底处理：防崩溃机制
   if (!vodId) {
     return { id: typeof params === "object" ? params.id : params, type: "url", title: "无效请求", mediaType: "movie" };
   }
 
-  // 请求官方详情接口
   const detail = await getDetailOle(apiHost.replace(/\/$/, ""), vodId);
   if (!detail) throw new Error("获取详情失败");
   
@@ -383,6 +380,9 @@ async function loadDetail(params) {
   }
   
   const isMovie = episodeItems.length === 1 && !/(第\d+集|集)/.test(episodeItems[0].title || "");
+  
+  // 【核心修复点】完美反转优先级：绝对优先使用真正的电影名 (name/vod_name)，拿父级传来的标题兜底，最后才信赖乱七八糟的 title 字段
+  const pageTitle = detail.name || detail.vod_name || (typeof params === 'object' ? params.title : "") || detail.title || "未知标题";
   
   let relatedItems = [];
   try {
@@ -408,7 +408,7 @@ async function loadDetail(params) {
   return {
     id: `ole_${vodId}`,
     type: "url",
-    title: detail.title || detail.name || "未知标题",
+    title: pageTitle,
     description: detail.blurb || detail.content || detail.intro || "",
     posterPath: validPic,
     backdropPath: validPic,
