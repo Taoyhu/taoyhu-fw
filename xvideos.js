@@ -74,11 +74,11 @@ WidgetMetadata = {
     id: 'xvideosTao',
     title: 'xvideos',
     description: 'xvideos视频资源浏览模块',
-    version: "1.1.1",
+    version: "1.1.2",
     requiredVersion: '0.0.1',
     author: "廿二日",
     site: 'https://www.xvideos.com',
-    detailCacheDuration: 3600,
+    detailCacheDuration: 300,
     modules: [
         {
             id: 'xvideos.new',
