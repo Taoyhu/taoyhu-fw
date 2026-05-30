@@ -3,7 +3,7 @@ WidgetMetadata = {
     title: "missav",
     author: "廿二日",
     description: "missav视频聚合模块",
-    version: "2.3.4",
+    version: "3.0.1",
     requiredVersion: "0.0.1",
     site: "https://missav.ai",
     cacheDuration: 3600,
@@ -294,27 +294,29 @@ function parseVideoList(html, options = {}) {
     const results = [];
 
     $("div.group").each((_, el) => {
-        const $link = $(el).find("a.text-secondary");
+        const $el = $(el);
+        const $link = $el.find("a.text-secondary");
         const href = $link.attr("href");
 
         if (href) {
-            const $img = $(el).find("img");
+            const $img = $el.find("img");
             const imgSrc = $img.attr("data-src") ?? $img.attr("src") ?? "";
+            const previewUrl = $el.find("video").attr("data-src") ?? $el.find("video").attr("src") ?? $el.find("[data-preview]").attr("data-preview") ?? $el.find("[data-webm]").attr("data-webm") ?? "";
             const videoId = extractVideoId(href);
             const coverUrl = videoId ? `https://fourhoi.com/${videoId.toLowerCase()}/cover-t.jpg` : imgSrc;
             const finalCover = coverUrl || imgSrc;
 
-            const item = {
+            results.push({
                 id: href,
                 type: "link",
                 title: $link.text().trim(),
                 coverUrl: finalCover,
+                previewUrl,
                 link: href,
-                description: `时长: ${$(el).find(".absolute.bottom-1.right-1").text().trim()}${videoId ? ` | 番号: ${videoId}` : ""}`,
+                description: `时长: ${$el.find(".absolute.bottom-1.right-1").text().trim()}${videoId ? ` | 番号: ${videoId}` : ""}`,
                 customHeaders: HEADERS,
                 ...(options.includeImageFields && { backdropPath: finalCover, posterPath: finalCover, image: finalCover })
-            };
-            results.push(item);
+            });
         }
     });
 
@@ -407,6 +409,8 @@ async function loadDetail(link) {
 
         videoUrl = videoUrl || (html.match(/source\s*=\s*['"]([^'"]+)['"]/)?.[1] ?? "");
 
+        const relatedItems = parseVideoList(html).filter(item => item.type === "link" && item.id !== link);
+
         if (videoUrl) {
             return [{
                 id: link,
@@ -415,6 +419,8 @@ async function loadDetail(link) {
                 videoUrl,
                 actors,
                 playerType: "system",
+                relatedItems,
+                childItems: relatedItems,
                 customHeaders: { ...HEADERS, "Origin": "https://missav.ai" }
             }];
         }
