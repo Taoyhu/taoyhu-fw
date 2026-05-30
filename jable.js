@@ -1,7 +1,7 @@
 WidgetMetadata = {
   id: "jableTao",
   title: "jable",
-  description: "jable分类浏览和全局搜索",
+  description: "jable网站聚合",
   author: "廿二日",
   site: "https://jable.tv",
   version: "1.1.4",
