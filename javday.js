@@ -4,9 +4,17 @@ var WidgetMetadata = {
   description: "javday网站聚合",
   author: "廿二日",
   site: "https://javday.app",
-  version: "1.0.1",
+  version: "1.0.2",
   requiredVersion: "0.0.1",
   detailCacheDuration: 60,
+  search: {
+    title: "全局搜索",
+    functionName: "search",
+    params: [
+      { name: "keyword", title: "关键词", type: "input", value: "" },
+      { name: "page", title: "页码", type: "page" }
+    ]
+  },
   modules: [
     {
       title: "搜索视频",
@@ -525,13 +533,7 @@ async function search(params = {}) {
       backdropPath: imgSrc,
       link: link,
       description: `搜索: ${params.keyword}`,
-      mediaType: "movie",
-      search: {
-    title: "全局搜索",
-    functionName: "searchGlobal",
-    params: [
-      { name: "keyword", title: "关键词", type: "input", value: "" },
-      { name: "from", title: "页码", type: "page", value: "1" },
+      mediaType: "movie"
     });
   });
   
