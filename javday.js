@@ -526,6 +526,12 @@ async function search(params = {}) {
       link: link,
       description: `搜索: ${params.keyword}`,
       mediaType: "movie",
+      search: {
+    title: "全局搜索",
+    functionName: "searchGlobal",
+    params: [
+      { name: "keyword", title: "关键词", type: "input", value: "" },
+      { name: "from", title: "页码", type: "page", value: "1" },
     });
   });
   
