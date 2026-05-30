@@ -7,7 +7,7 @@ const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",val
 WidgetMetadata = {
     id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.5",
+    version: "1.1.6",
     requiredVersion: "0.0.1",
     description: "Pornhub网站聚合，账号认证",
     author: "廿二日",
@@ -260,10 +260,7 @@ const ARTIST_CATALOG = [
 
 const createDefaultHeaders = extra => ({ ...COMMON_HEADERS, ...extra });
 const normalizeText = val => String(val || "").replace(/\s+/g, " ").trim();
-const trimUrl = url => url ? url.replace(/
-?
-|
-/g, "").trim() : "";
+const trimUrl = url => url ? url.replace(/\r?\n|\r/g, "").trim() : "";
 const looksLikePlaceholderUrl = url => /(?:placeholder|spacer|loading|blank|default|sprite|gif;base64|data:image\/gif)/i.test(url) || url.length < 12;
 
 const buildUrl = (path, query) => {
@@ -339,7 +336,7 @@ const extractDetailCoverFromHtml = (html, $root) => {
             if (val && !looksLikePlaceholderUrl(val)) return val;
         }
         const match = html.match(/"imageUrl"\s*:\s*"([^"]+)"/i) || html.match(/"thumbnailUrl"\s*:\s*"([^"]+)"/i);
-        return match?.[1]?.replace(/\/g, "") || "";
+        return match?.[1]?.replace(/\\/g, "") || "";
     } catch { return ""; }
 };
 
