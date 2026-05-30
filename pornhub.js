@@ -7,12 +7,12 @@ const SORT_BASIC = [{title:"最新发布",value:"new"},{title:"最多播放",val
 WidgetMetadata = {
     id: "pornhubTao",
     title: "pornhub",
-    version: "1.1.6",
+    version: "1.1.7",
     requiredVersion: "0.0.1",
     description: "Pornhub网站聚合，账号认证",
     author: "廿二日",
     site: "https://cn.pornhub.com",
-    detailCacheDuration: 60,
+    detailCacheDuration: 300,
     globalParams: [
         { name: "cookie", title: "全局登录Cookie", type: "input", description: "用于获取推荐视频等私有数据", value: "" },
         { name: "username", title: "全局用户名", type: "input", description: "用于获取我的最爱等用户数据，示例：watchadog", value: "" }
@@ -30,7 +30,7 @@ WidgetMetadata = {
             id: "searchKeyword",
             title: "全站搜索",
             functionName: "getSearchResults",
-            cacheDuration: 86400,
+            cacheDuration: 3600,
             params: [
                 { name: "search_query", title: "搜索关键词", type: "input", value: "" },
                 { name: "search_type", title: "是否开启精准搜索", type: "enumeration", value: "no", enumOptions: [{title:"关闭",value:"no"},{title:"开启",value:"yes"}] },
