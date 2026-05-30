@@ -4,9 +4,9 @@ WidgetMetadata = {
   description: "jable网站聚合",
   author: "廿二日",
   site: "https://jable.tv",
-  version: "1.1.4",
+  version: "1.1.5",
   requiredVersion: "0.0.2",
-  detailCacheDuration: 60,
+  detailCacheDuration: 300,
   modules: [
     {
       title: "搜索",
